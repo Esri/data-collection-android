@@ -4,7 +4,9 @@ An open-source example app demonstrating how to use the ArcGIS platform to colle
 
 Collect your own organization's data in an app driven by the ArcGIS Web GIS information model and configured through your organization's web maps. We provide an example _Trees of Portland_ web map and dataset to get you started.
 
-_Coming summer 2018_
+_Coming summer 2019_
+
+(In the meantime, have a look at the corresponding [iOS](https://github.com/Esri/data-collection-ios) and [.NET](https://github.com/Esri/data-collection-dotnet) applications which showcase similar patterns.)
 
 ## SDK Usage
 
@@ -19,7 +21,7 @@ Mobile Data Collection leverages several aspects of the Runtime SDK including:
 * Working with related records
 * Identifying map features
 * Portal authentication with OAuth
-* Using the World Geocoder service
+* Using the World Geocoding service
 * Using Popup configuration to drive app behavior
 
 _Watch or Star this repo to be notified when the app becomes public!_
