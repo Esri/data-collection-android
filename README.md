@@ -6,7 +6,7 @@ Collect your own organization's data in an app driven by the ArcGIS Web GIS info
 
 _Coming summer 2019_
 
-(In the meantime, have a look at our [iOS](https://github.com/Esri/data-collection-ios) and [.NET](https://github.com/Esri/data-collection-dotnet) applications which showcase similar patterns.)
+(In the meantime, have a look at the corresponding [iOS](https://github.com/Esri/data-collection-ios) and [.NET](https://github.com/Esri/data-collection-dotnet) applications which showcase similar patterns.)
 
 ## SDK Usage
 
@@ -21,7 +21,7 @@ Mobile Data Collection leverages several aspects of the Runtime SDK including:
 * Working with related records
 * Identifying map features
 * Portal authentication with OAuth
-* Using the World Geocoder service
+* Using the World Geocoding service
 * Using Popup configuration to drive app behavior
 
 _Watch or Star this repo to be notified when the app becomes public!_
