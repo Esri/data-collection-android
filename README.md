@@ -2,9 +2,9 @@
 
 An open-source example app demonstrating how to use the ArcGIS platform to collect features and related records, both online and offline, using the ArcGIS Runtime SDK for Android.
 
-Collect your own organization's data in an app driven by the ArcGIS Web GIS information model and configured through your organization's web maps. We provide an example _Trees of Portland_ web map and dataset to get you started.
+Collect your own organization's data in an app driven by the ArcGIS Web GIS information model and configured through your organization's web maps.
 
-_Coming summer 2019_
+_Source code for this project is coming soon_
 
 (In the meantime, have a look at the corresponding [iOS](https://github.com/Esri/data-collection-ios) and [.NET](https://github.com/Esri/data-collection-dotnet) applications which showcase similar patterns.)
 
