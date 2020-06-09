@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Data Collection</string>
+    <string name="app_name_with_version">Data Collection %s</string>
+    <string name="app_version">0.1</string>
+
+    <string name="arcgis_runtime_sdk">ArcGIS Runtime SDK %s</string>
+
+    <string name="log_in">Log in</string>
+    <string name="log_out">Log out</string>
+    <string name="access_portal">Access Portal</string>
+    <string name="portal_name">www.arcgis.com</string>
+
+    <string name="enter_valid_oauth_config">Please enter valid OAuth config in app_settings.xml</string>
+    <string name="profile">Profile</string>
+</resources>

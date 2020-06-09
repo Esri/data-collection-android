@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2020 Esri
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="dataCollectionViewModel"
+                type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel" />
+    </data>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <LinearLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+            <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                    app:title="@{dataCollectionViewModel.portalItemTitle}"
+                    app:titleTextColor="@android:color/white" />
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                <com.esri.arcgisruntime.mapping.view.MapView
+                        android:id="@+id/mapView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:map="@{dataCollectionViewModel.mapViewModel.map}" />
+
+                <androidx.cardview.widget.CardView
+                        android:id="@+id/bottomSheetContainer"
+                        style="?attr/bottomSheetStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:cardElevation="50dp"
+                        app:cardCornerRadius="12dp"
+                        android:background="@android:color/white"
+                        app:behavior_peekHeight="80dp"
+                        app:behavior_fitToContents="true"
+                        app:behavior_draggable="false"
+                        app:behavior_hideable="true"
+                        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+                    <fragment
+                            android:id="@+id/bottomSheetNavHostFragment"
+                            android:name="androidx.navigation.fragment.NavHostFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:animateLayoutChanges="true"
+                            app:defaultNavHost="true"
+                            app:navGraph="@navigation/bottomsheet_navigation" />
+
+                </androidx.cardview.widget.CardView>
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </LinearLayout>
+
+        <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
+        <com.google.android.material.navigation.NavigationView
+                android:id="@+id/nav_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:fitsSystemWindows="true">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                <!-- The sign in header -->
+                <include layout="@layout/navigation_header" />
+
+                <FrameLayout
+                        android:id="@+id/listLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    <!-- The drawer contents are inserted here by the DrawerFragment -->
+
+                    <fragment
+                            android:id="@+id/drawerNavHostFragment"
+                            android:name="androidx.navigation.fragment.NavHostFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:defaultNavHost="true"
+                            app:navGraph="@navigation/navigation_drawer" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+        </com.google.android.material.navigation.NavigationView>
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>
+
