@@ -85,8 +85,7 @@ class DataCollectionFragment : Fragment() {
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
                     if (bottomSheetBehavior.state == STATE_COLLAPSED) {
                         dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
-                        mapViewModel.identifiableLayer?.clearSelection()
-                        identifyResultViewModel.resetIdentifyResult()
+                        resetIdentifyResult()
                     } else {
                         requireActivity().finish()
                     }
@@ -127,6 +126,8 @@ class DataCollectionFragment : Fragment() {
             bottomSheetBehavior.state = it
         })
 
+        // On orientation change if we have a valid value for identifyLayerResult,
+        // we highlight the first feature from the result.
         identifyResultViewModel.identifyLayerResult.value?.let {
             identifyResultViewModel.highlightFeatureInFeatureLayer(it.layerContent, it.popups[0].geoElement)
         }
@@ -219,8 +220,7 @@ class DataCollectionFragment : Fragment() {
 
         mapViewModel.identifiableLayer?.let {
             // Clear the selected features from the feature layer
-            it.clearSelection()
-            identifyResultViewModel.resetIdentifyResult()
+            resetIdentifyResult()
 
             val identifyLayerResultsFuture = mapView
                 .identifyLayerAsync(mapViewModel.identifiableLayer, screenPoint, 5.0, true)
@@ -234,6 +234,15 @@ class DataCollectionFragment : Fragment() {
                 }
             }
         }
+    }
+
+    /**
+     * Clears the selected features from the feature layer and nullifies the identify results in
+     * identifyResultsViewModel.
+     */
+    private fun resetIdentifyResult() {
+        mapViewModel.identifiableLayer?.clearSelection()
+        identifyResultViewModel.resetIdentifyResult()
     }
 
     override fun onPause() {
