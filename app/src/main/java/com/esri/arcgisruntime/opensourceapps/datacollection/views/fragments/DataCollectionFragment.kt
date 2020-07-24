@@ -85,7 +85,6 @@ class DataCollectionFragment : Fragment() {
                 // the DataCollectionActivity.
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
                     if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                        bottomSheetBehavior.state = STATE_HIDDEN
                         dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
                         mapViewModel.identifiableLayer?.clearSelection()
                         identifyResultViewModel.resetIdentifyResult()
@@ -95,8 +94,7 @@ class DataCollectionFragment : Fragment() {
                 // if the bottomsheet is in the STATE_EXPANDED then we are showing
                 // PopupAttributeListFragment and we need return back to the IdentifyResultFragment
                 // which shows up in STATE_COLLAPSED
-                bottomSheetBehavior.state == STATE_EXPANDED -> bottomSheetBehavior.state =
-                    STATE_COLLAPSED
+                bottomSheetBehavior.state == STATE_EXPANDED -> dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
             }
         }
     }
@@ -125,9 +123,6 @@ class DataCollectionFragment : Fragment() {
             childFragmentManager.findFragmentById(R.id.bottomSheetNavHostFragment)
                 ?: throw InvalidParameterException("bottomSheetNavHostFragment must exist")
         bottomSheetNavController = bottomSheetNavHostFragment.findNavController()
-//        dataCollectionViewModel.bottomSheetState.value?.let{ value ->
-//            bottomSheetBehavior.state = value
-//        }
 
         dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, Observer {
             bottomSheetBehavior.state = it
@@ -145,14 +140,12 @@ class DataCollectionFragment : Fragment() {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
-            bottomSheetBehavior.state = STATE_EXPANDED
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
         identifyResultViewModel.isShowIdentifiedPopup.observeEvent(viewLifecycleOwner) {
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
-            bottomSheetBehavior.state = STATE_COLLAPSED
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
         }
 
@@ -203,7 +196,6 @@ class DataCollectionFragment : Fragment() {
         mapView.onTouchListener =
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    bottomSheetBehavior.state = STATE_HIDDEN
                     dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
 
                     e?.let {
