@@ -33,7 +33,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentDataCollectionBinding
@@ -132,18 +131,18 @@ class DataCollectionFragment : Fragment() {
             identifyResultViewModel.highlightFeatureInFeatureLayer(it.layerContent, it.popups[0].geoElement)
         }
 
-        dataCollectionViewModel.isDrawerClosed.observe(viewLifecycleOwner, Observer {
+        dataCollectionViewModel.closeDrawerEvent.observeEvent(viewLifecycleOwner) {
             drawer_layout.closeDrawer(GravityCompat.START)
-        })
+        }
 
-        identifyResultViewModel.isShowPopupAttributeList.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showPopupAttributeListEvent.observeEvent(viewLifecycleOwner) {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
-        identifyResultViewModel.isShowIdentifiedPopup.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)

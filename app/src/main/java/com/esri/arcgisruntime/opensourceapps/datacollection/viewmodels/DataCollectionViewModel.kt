@@ -25,7 +25,9 @@ import androidx.security.crypto.MasterKeys
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalUser
@@ -52,8 +54,8 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
     private lateinit var portal: Portal
     private lateinit var portalItem: PortalItem
 
-    private val _isDrawerClosed: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isDrawerClosed: LiveData<Boolean> = _isDrawerClosed
+    private val _closeDrawerEvent = MutableLiveData<Event<Unit>>()
+    val closeDrawerEvent: LiveData<Event<Unit>> = _closeDrawerEvent
 
     private val _portalUser: MutableLiveData<PortalUser> = MutableLiveData()
     val portalUser: LiveData<PortalUser> = _portalUser
@@ -146,7 +148,7 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      * and user's thumbnail image on the view.
      */
     fun signInToPortal() {
-        _isDrawerClosed.value = true
+        _closeDrawerEvent.raiseEvent()
         if (AuthenticationManager.getOAuthConfiguration(portalUrl).clientId == invalidClientId) {
             _showAddOauthConfigurationSnackbar.value = true
             return
@@ -158,7 +160,7 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      * Signs the user out of the portal and reloads the portal with login required flag set to false.
      */
     fun signOutOfPortal() {
-        _isDrawerClosed.value = true
+        _closeDrawerEvent.raiseEvent()
         AuthenticationManager.CredentialCache.removeAndRevokeAllCredentialsAsync()
         _portalUser.value = null
         _portalUserThumbnail.value = null
