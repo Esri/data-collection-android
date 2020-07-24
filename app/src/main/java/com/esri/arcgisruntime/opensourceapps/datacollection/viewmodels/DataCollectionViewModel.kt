@@ -31,6 +31,7 @@ import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalUser
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.OAuthConfiguration
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 /**
  * The main view model of the Data Collection application. It composes the various sub-components
@@ -66,6 +67,9 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
     private val _showAddOauthConfigurationSnackbar: MutableLiveData<Boolean> =
         MutableLiveData()
     val showAddOauthConfigurationSnackbar: LiveData<Boolean> = _showAddOauthConfigurationSnackbar
+
+    private val _bottomSheetState: MutableLiveData<Int> = MutableLiveData(BottomSheetBehavior.STATE_HIDDEN)
+    val bottomSheetState: LiveData<Int> = _bottomSheetState
 
     private val encryptedSharedPrefs by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -163,6 +167,13 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
             commit()
         }
         configurePortal(false)
+    }
+
+    /**
+     * Sets the current bottomsheet state, to restore the bottomsheet to on orientation change.
+     */
+    fun setCurrentBottomSheetState(bottomSheetState: Int) {
+        _bottomSheetState.value = bottomSheetState
     }
 
     /**

@@ -24,10 +24,54 @@
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel" />
     </data>
 
-    <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="64dp">
+
+            <ImageView
+                    android:id="@+id/symbol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:imageBitmap="@{identifyResultViewModel.identifiedPopup}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.055"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="00.500" />
+
+            <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{identifyResultViewModel.identifiedPopup.title}"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.138"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.466" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0"/>
+
+        <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
             android:id="@+id/popupView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:popup="@{identifyResultViewModel.identifiedPopup}" />
+
+    </LinearLayout>
 
 </layout>

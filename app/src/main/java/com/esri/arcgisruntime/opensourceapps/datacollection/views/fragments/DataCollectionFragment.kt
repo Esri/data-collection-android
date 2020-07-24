@@ -38,6 +38,7 @@ import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentDataCollectionBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
@@ -85,7 +86,9 @@ class DataCollectionFragment : Fragment() {
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
                     if (bottomSheetBehavior.state == STATE_COLLAPSED) {
                         bottomSheetBehavior.state = STATE_HIDDEN
+                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
                         mapViewModel.identifiableLayer?.clearSelection()
+                        identifyResultViewModel.resetIdentifyResult()
                     } else {
                         requireActivity().finish()
                     }
@@ -122,24 +125,36 @@ class DataCollectionFragment : Fragment() {
             childFragmentManager.findFragmentById(R.id.bottomSheetNavHostFragment)
                 ?: throw InvalidParameterException("bottomSheetNavHostFragment must exist")
         bottomSheetNavController = bottomSheetNavHostFragment.findNavController()
-        bottomSheetBehavior.state = STATE_HIDDEN
+//        dataCollectionViewModel.bottomSheetState.value?.let{ value ->
+//            bottomSheetBehavior.state = value
+//        }
+
+        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, Observer {
+            bottomSheetBehavior.state = it
+        })
+
+        identifyResultViewModel.identifyLayerResult.value?.let {
+            identifyResultViewModel.highlightFeatureInFeatureLayer(it.layerContent, it.popups[0].geoElement)
+        }
 
         dataCollectionViewModel.isDrawerClosed.observe(viewLifecycleOwner, Observer {
             drawer_layout.closeDrawer(GravityCompat.START)
         })
 
-        identifyResultViewModel.isShowPopupAttributeList.observe(viewLifecycleOwner, Observer {
+        identifyResultViewModel.isShowPopupAttributeList.observeEvent(viewLifecycleOwner) {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
             bottomSheetBehavior.state = STATE_EXPANDED
-        })
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
+        }
 
-        identifyResultViewModel.identifiedPopup.observe(viewLifecycleOwner, Observer {
+        identifyResultViewModel.isShowIdentifiedPopup.observeEvent(viewLifecycleOwner) {
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
             bottomSheetBehavior.state = STATE_COLLAPSED
-        })
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
+        }
 
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
@@ -164,7 +179,7 @@ class DataCollectionFragment : Fragment() {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
                 R.id.popupAttributeListFragment -> {
-                    toolbar.title = identifyResultViewModel.identifiedPopup.value?.title
+                    toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
             }
         }
@@ -189,6 +204,7 @@ class DataCollectionFragment : Fragment() {
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                     bottomSheetBehavior.state = STATE_HIDDEN
+                    dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
 
                     e?.let {
                         val screenPoint = android.graphics.Point(
@@ -213,6 +229,7 @@ class DataCollectionFragment : Fragment() {
         mapViewModel.identifiableLayer?.let {
             // Clear the selected features from the feature layer
             it.clearSelection()
+            identifyResultViewModel.resetIdentifyResult()
 
             val identifyLayerResultsFuture = mapView
                 .identifyLayerAsync(mapViewModel.identifiableLayer, screenPoint, 5.0, true)
