@@ -47,6 +47,9 @@ class IdentifyResultViewModel : ViewModel() {
     private val _showPopupAttributeListEvent = MutableLiveData<Event<Unit>>()
     val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
 
+    private val _isEditMode = MutableLiveData<Boolean>()
+    val isEditMode: LiveData<Boolean> = _isEditMode
+
     /**
      * Highlights the result popup in the GeoView.
      * Updates identifiedPopup property to set the popup field values being displayed in
@@ -82,6 +85,11 @@ class IdentifyResultViewModel : ViewModel() {
     fun showPopupAttributeList() {
         _showPopupAttributeListEvent.raiseEvent()
     }
+
+    fun enableEditMode() {
+        _isEditMode.value = true
+    }
+
 
     /**
      * Highlights the GeoElement in the GeoView.

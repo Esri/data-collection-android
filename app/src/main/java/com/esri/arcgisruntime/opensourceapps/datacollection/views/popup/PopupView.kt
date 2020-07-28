@@ -19,10 +19,13 @@ package com.esri.arcgisruntime.opensourceapps.datacollection.views.popup
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -32,6 +35,8 @@ import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
 import com.esri.arcgisruntime.opensourceapps.datacollection.BR
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
+import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
 
 /**
@@ -45,6 +50,11 @@ class PopupView : FrameLayout {
         set(value) {
             field = value
             popupAttributeListAdapter.submitList(getPopupAttributeList())
+        }
+
+    var editMode: Boolean = false
+        set(value) {field = value
+            popupAttributeListAdapter.notifyDataSetChanged()
         }
 
     /**
@@ -112,8 +122,9 @@ class PopupView : FrameLayout {
             return ViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) =
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind(getItem(position))
+        }
     }
 
     /**
@@ -139,12 +150,17 @@ class PopupView : FrameLayout {
     /**
      * The PopupAttributeListAdapter ViewHolder.
      */
-    private class ViewHolder(private val binding: ViewDataBinding) :
+    private inner class ViewHolder(private val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(
             popupAttribute: PopupAttribute
         ) {
+            if (editMode){
+                binding.root.popupFieldEditValue.visibility = View.VISIBLE
+                binding.root.popupFieldValue.visibility = View.GONE
+            }
+
             binding.setVariable(BR.popupAttribute, popupAttribute)
             binding.executePendingBindings()
         }

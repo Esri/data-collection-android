@@ -12,4 +12,7 @@
 
     <string name="enter_valid_oauth_config">Please enter valid OAuth config in app_settings.xml</string>
     <string name="profile">Profile</string>
+    <string name="edit">Edit</string>
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
 </resources>
