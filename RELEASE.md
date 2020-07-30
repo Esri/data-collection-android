@@ -1,3 +1,8 @@
+# Release 0.1.1
+
+- Adds doc table of contents to root README.md and docs/index.md
+- Renames docs/index.md to [docs/README.md](/docs/README.md)
+
 # Release 0.1
 
 **Initial Release**
