@@ -1,5 +1,22 @@
 # Data Collection Android
 
+<!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [SDK Usage](#sdk-usage)   
+- [Development Instructions](#development-instructions)   
+   - [Fork the repo](#fork-the-repo)   
+   - [Clone the repo](#clone-the-repo)   
+      - [Command line Git](#command-line-git)   
+   - [Configuring a Remote for a Fork](#configuring-a-remote-for-a-fork)   
+- [Requirements](#requirements)   
+- [Resources](#resources)   
+- [Issues](#issues)   
+- [Contributing](#contributing)   
+   - [Licensing](#licensing)   
+
+<!-- /MDTOC -->
+---
+
 Data Collection for Android shows how a robust application can be built around the ArcGIS Platform using the ArcGIS Runtime SDK for Android and Kotlin. It demonstrates best practices around some simple but key functionality of the ArcGIS Runtime. Using your organization's web maps, you can use Data Collection as is, or extend it to meet your specific needs.
 
 ![General UI](./docs/images/General-UI.png)
