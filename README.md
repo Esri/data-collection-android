@@ -12,7 +12,7 @@
 - [Resources](#resources)   
 - [Issues](#issues)   
 - [Contributing](#contributing)   
-   - [Licensing](#licensing)   
+- [Licensing](#licensing)   
 
 <!-- /MDTOC -->
 ---
@@ -118,7 +118,7 @@ Anyone and everyone is welcome to contribute. We do accept pull requests.
 3. Contribute code
 4. Improve documentation
 
-### Licensing
+## Licensing
 
 Copyright 2020 Esri
 
