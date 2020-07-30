@@ -36,6 +36,7 @@ Mobile Data Collection leverages several aspects of the Runtime SDK including:
 Read the [docs](./docs/README.md) for a detailed explanation of the application, including its architecture and how it leverages the ArcGIS platform, as well as how you can begin using the app right away.
 
 ## Development Instructions
+
 Data Collection is an [Android Studio](http://developer.android.com/sdk/index.html) project and app module that can be directly cloned and imported into Android Studio.
 
 1. Log in to [ArcGIS for Developers](https://developers.arcgis.com/) and [register](https://developers.arcgis.com/applications/#/) your app.
@@ -79,17 +80,21 @@ Data Collection is an [Android Studio](http://developer.android.com/sdk/index.ht
  ```
 
 ### Fork the repo
+
 **Fork** the [Data Collection for Android](https://github.com/Esri/data-collection-android/fork) repo.
 
 ### Clone the repo
+
 Once you have forked the repo, you can make a local clone.
 
 #### Command line Git
+
 1. [Clone the  Data Collection for Android repo](https://help.github.com/articles/fork-a-repo#step-2-clone-your-fork)
 2. ```cd``` into the ```data-collection-android``` folder
 3. Make your changes and create a [pull request](https://help.github.com/articles/creating-a-pull-request)
 
 ### Configuring a Remote for a Fork
+
 If you make changes in the fork and would like to [sync](https://help.github.com/articles/syncing-a-fork/) those changes with the upstream repository, you must first [configure the remote](https://help.github.com/articles/configuring-a-remote-for-a-fork/). This will be required when you have created local branches and would like to make a [pull request](https://help.github.com/articles/creating-a-pull-request) to your upstream branch.
 
 1. In the Terminal (for Mac users) or command prompt (fow Windows and Linux users) type ```git remote -v``` to list the current configured remote repo for your fork.
@@ -103,9 +108,11 @@ If there are changes made in the original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
+
 * [Android Studio](http://developer.android.com/sdk/index.html)
 
 ## Resources
+
 * [ArcGIS Runtime SDK for Android Developers Site](https://developers.arcgis.com/android/)
 * [ArcGIS Mobile Blog](http://blogs.esri.com/esri/arcgis/category/mobile/)
 * [ArcGIS Developer Blog](http://blogs.esri.com/esri/arcgis/category/developer/)
