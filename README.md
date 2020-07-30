@@ -3,6 +3,7 @@
 <!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
 
 - [SDK Usage](#sdk-usage)   
+- [Detailed Documentation](#detailed-documentation)   
 - [Development Instructions](#development-instructions)   
    - [Fork the repo](#fork-the-repo)   
    - [Clone the repo](#clone-the-repo)   
@@ -29,6 +30,10 @@ Mobile Data Collection leverages several aspects of the Runtime SDK including:
 * Identifying map features
 * Portal authentication with OAuth 2.0
 * Working with Features, Popups and PopupManagers
+
+## Detailed Documentation
+
+Read the [docs](./docs/README.md) for a detailed explanation of the application, including its architecture and how it leverages the ArcGIS platform, as well as how you can begin using the app right away.
 
 ## Development Instructions
 Data Collection is an [Android Studio](http://developer.android.com/sdk/index.html) project and app module that can be directly cloned and imported into Android Studio.
