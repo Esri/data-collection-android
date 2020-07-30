@@ -94,7 +94,7 @@ If there are changes made in the original repository, you can sync the fork to k
 1. In the terminal, change the current working directory to your local project.
 2. Type ```git fetch upstream``` to fetch the commits from the upstream repository.
 3. ```git checkout master``` to checkout your fork's local master branch.
-4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
+4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
 * [Android Studio](http://developer.android.com/sdk/index.html)
