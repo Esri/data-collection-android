@@ -29,6 +29,7 @@ import androidx.lifecycle.Observer
  * can be emitted if the observer is active. This LiveData only calls the observable if there's an
  * explicit call to postValue().
  * <p>
+ * https://medium.com/androiddevelopers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150
  */
 open class Event<out T>(private val content: T) {
     private var hasBeenHandled = false
@@ -45,16 +46,31 @@ open class Event<out T>(private val content: T) {
     }
 }
 
-fun <T> LiveData<Event<T>>.observeEvent(owner: LifecycleOwner, onEventUnhandledContent: (T) -> Unit) {
+/**
+ * Adds the given event function to observer being added to the observers list within the lifespan
+ * of the given owner. The events are dispatched on the main thread.
+ *
+ * @param owner    The LifecycleOwner which controls the observer
+ * @param onEventRaised The observer function that will receive the events from the observer
+*/
+fun <T> LiveData<Event<T>>.observeEvent(owner: LifecycleOwner, onEventRaised: (T) -> Unit) {
     observe(owner, Observer<Event<T>> { event  ->
-        event?.getContentIfNotHandled()?.let { onEventUnhandledContent(it) }
+        event?.getContentIfNotHandled()?.let { onEventRaised(it) }
     })
 }
 
+/**
+ * Raises an event with given argument by calling postValue() on the MutableLiveData object.
+ *
+ * @param arg The argument to pass to the observers
+ */
 fun <T> MutableLiveData<Event<T>>.raiseEvent(arg: T) {
     postValue(Event(arg))
 }
 
+/**
+ * Raises an event by calling postValue() on the MutableLiveData object.
+ */
 fun MutableLiveData<Event<Unit>>.raiseEvent() {
     postValue(Event(Unit))
 }
