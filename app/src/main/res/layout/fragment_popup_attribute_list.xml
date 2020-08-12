@@ -66,7 +66,7 @@
                     android:layout_height="34dp"
                     android:layout_marginStart="12dp"
                     android:onClick="@{() -> identifyResultViewModel.enableEditMode()}"
-                    android:visibility="@{identifyResultViewModel.isEditMode ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{identifyResultViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.918"
@@ -81,8 +81,8 @@
                     android:layout_width="30dp"
                     android:layout_height="34dp"
                     android:layout_marginStart="12dp"
-                    android:onClick="@{() -> identifyResultViewModel.enableEditMode()}"
-                    android:visibility="@{identifyResultViewModel.isEditMode ? View.VISIBLE : View.GONE}"
+                    android:onClick="@{() -> identifyResultViewModel.saveEdits()}"
+                    android:visibility="@{identifyResultViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.918"
@@ -97,7 +97,8 @@
                     android:layout_width="30dp"
                     android:layout_height="34dp"
                     android:contentDescription="@string/cancel"
-                    android:visibility="@{identifyResultViewModel.isEditMode ? View.VISIBLE : View.GONE}"
+                    android:onClick="@{() -> identifyResultViewModel.disableEditMode()}"
+                    android:visibility="@{identifyResultViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/edit"
                     app:layout_constraintHorizontal_bias="0.825"
@@ -117,7 +118,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:popup="@{identifyResultViewModel.identifiedPopup}"
-            app:editMode="@{identifyResultViewModel.isEditMode}"/>
+            app:editMode="@{identifyResultViewModel.isPopupInEditMode}"
+            app:saveEdit="@{identifyResultViewModel.isPopupSaveEdit}"    />
     </LinearLayout>
 
 </layout>
