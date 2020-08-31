@@ -25,12 +25,15 @@ import androidx.security.crypto.MasterKeys
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalUser
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.OAuthConfiguration
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 /**
  * The main view model of the Data Collection application. It composes the various sub-components
@@ -51,8 +54,8 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
     private lateinit var portal: Portal
     private lateinit var portalItem: PortalItem
 
-    private val _isDrawerClosed: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isDrawerClosed: LiveData<Boolean> = _isDrawerClosed
+    private val _closeDrawerEvent = MutableLiveData<Event<Unit>>()
+    val closeDrawerEvent: LiveData<Event<Unit>> = _closeDrawerEvent
 
     private val _portalUser: MutableLiveData<PortalUser> = MutableLiveData()
     val portalUser: LiveData<PortalUser> = _portalUser
@@ -66,6 +69,9 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
     private val _showAddOauthConfigurationSnackbar: MutableLiveData<Boolean> =
         MutableLiveData()
     val showAddOauthConfigurationSnackbar: LiveData<Boolean> = _showAddOauthConfigurationSnackbar
+
+    private val _bottomSheetState: MutableLiveData<Int> = MutableLiveData(BottomSheetBehavior.STATE_HIDDEN)
+    val bottomSheetState: LiveData<Int> = _bottomSheetState
 
     private val encryptedSharedPrefs by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -142,7 +148,7 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      * and user's thumbnail image on the view.
      */
     fun signInToPortal() {
-        _isDrawerClosed.value = true
+        _closeDrawerEvent.raiseEvent()
         if (AuthenticationManager.getOAuthConfiguration(portalUrl).clientId == invalidClientId) {
             _showAddOauthConfigurationSnackbar.value = true
             return
@@ -154,7 +160,7 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      * Signs the user out of the portal and reloads the portal with login required flag set to false.
      */
     fun signOutOfPortal() {
-        _isDrawerClosed.value = true
+        _closeDrawerEvent.raiseEvent()
         AuthenticationManager.CredentialCache.removeAndRevokeAllCredentialsAsync()
         _portalUser.value = null
         _portalUserThumbnail.value = null
@@ -163,6 +169,15 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
             commit()
         }
         configurePortal(false)
+    }
+
+    /**
+     * Sets the current bottomsheet state, to restore the bottomsheet to on orientation change.
+     *
+     * @param bottomSheetState the state to set on the bottomsheet
+     */
+    fun setCurrentBottomSheetState(bottomSheetState: Int) {
+        _bottomSheetState.value = bottomSheetState
     }
 
     /**

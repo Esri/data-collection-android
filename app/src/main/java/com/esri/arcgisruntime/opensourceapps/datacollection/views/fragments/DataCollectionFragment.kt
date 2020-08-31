@@ -33,11 +33,11 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentDataCollectionBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
@@ -84,16 +84,15 @@ class DataCollectionFragment : Fragment() {
                 // the DataCollectionActivity.
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
                     if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                        bottomSheetBehavior.state = STATE_HIDDEN
-                        mapViewModel.identifiableLayer?.clearSelection()
+                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+                        resetIdentifyResult()
                     } else {
                         requireActivity().finish()
                     }
                 // if the bottomsheet is in the STATE_EXPANDED then we are showing
                 // PopupAttributeListFragment and we need return back to the IdentifyResultFragment
                 // which shows up in STATE_COLLAPSED
-                bottomSheetBehavior.state == STATE_EXPANDED -> bottomSheetBehavior.state =
-                    STATE_COLLAPSED
+                bottomSheetBehavior.state == STATE_EXPANDED -> dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
             }
         }
     }
@@ -122,24 +121,33 @@ class DataCollectionFragment : Fragment() {
             childFragmentManager.findFragmentById(R.id.bottomSheetNavHostFragment)
                 ?: throw InvalidParameterException("bottomSheetNavHostFragment must exist")
         bottomSheetNavController = bottomSheetNavHostFragment.findNavController()
-        bottomSheetBehavior.state = STATE_HIDDEN
 
-        dataCollectionViewModel.isDrawerClosed.observe(viewLifecycleOwner, Observer {
-            drawer_layout.closeDrawer(GravityCompat.START)
+        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, Observer {
+            bottomSheetBehavior.state = it
         })
 
-        identifyResultViewModel.isShowPopupAttributeList.observe(viewLifecycleOwner, Observer {
+        // On orientation change if we have a valid value for identifyLayerResult,
+        // we highlight the first feature from the result.
+        identifyResultViewModel.identifyLayerResult.value?.let {
+            identifyResultViewModel.highlightFeatureInFeatureLayer(it.layerContent, it.popups[0].geoElement)
+        }
+
+        dataCollectionViewModel.closeDrawerEvent.observeEvent(viewLifecycleOwner) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        }
+
+        identifyResultViewModel.showPopupAttributeListEvent.observeEvent(viewLifecycleOwner) {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
-            bottomSheetBehavior.state = STATE_EXPANDED
-        })
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
+        }
 
-        identifyResultViewModel.identifiedPopup.observe(viewLifecycleOwner, Observer {
+        identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
-            bottomSheetBehavior.state = STATE_COLLAPSED
-        })
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
+        }
 
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
@@ -164,7 +172,7 @@ class DataCollectionFragment : Fragment() {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
                 R.id.popupAttributeListFragment -> {
-                    toolbar.title = identifyResultViewModel.identifiedPopup.value?.title
+                    toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
             }
         }
@@ -188,7 +196,7 @@ class DataCollectionFragment : Fragment() {
         mapView.onTouchListener =
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    bottomSheetBehavior.state = STATE_HIDDEN
+                    dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
 
                     e?.let {
                         val screenPoint = android.graphics.Point(
@@ -212,7 +220,7 @@ class DataCollectionFragment : Fragment() {
 
         mapViewModel.identifiableLayer?.let {
             // Clear the selected features from the feature layer
-            it.clearSelection()
+            resetIdentifyResult()
 
             val identifyLayerResultsFuture = mapView
                 .identifyLayerAsync(mapViewModel.identifiableLayer, screenPoint, 5.0, true)
@@ -226,6 +234,15 @@ class DataCollectionFragment : Fragment() {
                 }
             }
         }
+    }
+
+    /**
+     * Clears the selected features from the feature layer and nullifies the identify results in
+     * identifyResultsViewModel.
+     */
+    private fun resetIdentifyResult() {
+        mapViewModel.identifiableLayer?.clearSelection()
+        identifyResultViewModel.resetIdentifyResult()
     }
 
     override fun onPause() {

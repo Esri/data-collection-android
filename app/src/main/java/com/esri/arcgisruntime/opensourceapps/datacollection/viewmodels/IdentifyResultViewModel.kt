@@ -25,6 +25,8 @@ import com.esri.arcgisruntime.layers.LayerContent
 import com.esri.arcgisruntime.mapping.GeoElement
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 
 /**
  * The view model for IdentifyResultFragment, that is responsible for processing the result of
@@ -33,11 +35,17 @@ import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
  */
 class IdentifyResultViewModel : ViewModel() {
 
+    private val _showIdentifiedPopupAttributeEvent = MutableLiveData<Event<Unit>>()
+    val showIdentifiedPopupAttributeEvent: LiveData<Event<Unit>> = _showIdentifiedPopupAttributeEvent
+
+    private val _identifyLayerResult = MutableLiveData<IdentifyLayerResult>()
+    val identifyLayerResult: LiveData<IdentifyLayerResult> = _identifyLayerResult
+
     private val _identifiedPopup = MutableLiveData<Popup>()
     val identifiedPopup: LiveData<Popup> = _identifiedPopup
 
-    private val _isShowPopupAttributeList = MutableLiveData<Boolean>()
-    val isShowPopupAttributeList: LiveData<Boolean> = _isShowPopupAttributeList
+    private val _showPopupAttributeListEvent = MutableLiveData<Event<Unit>>()
+    val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
 
     /**
      * Highlights the result popup in the GeoView.
@@ -50,7 +58,9 @@ class IdentifyResultViewModel : ViewModel() {
         identifyLayerResult: IdentifyLayerResult
     ) {
         if (identifyLayerResult.popups.size > 0) {
+            _identifyLayerResult.value = identifyLayerResult
             _identifiedPopup.value = identifyLayerResult.popups[0]
+            _showIdentifiedPopupAttributeEvent.raiseEvent()
             highlightFeatureInFeatureLayer(
                 identifyLayerResult.layerContent,
                 identifyLayerResult.popups[0].geoElement
@@ -59,10 +69,18 @@ class IdentifyResultViewModel : ViewModel() {
     }
 
     /**
+     * Resets the result of the identify operation
+     */
+    fun resetIdentifyResult() {
+        _identifyLayerResult.value = null
+        _identifiedPopup.value = null
+    }
+
+    /**
      * Called when user taps on the identify result bottom sheet. Kicks off PopupAttributeListFragment
      */
     fun showPopupAttributeList() {
-        _isShowPopupAttributeList.value = true
+        _showPopupAttributeListEvent.raiseEvent()
     }
 
     /**
@@ -71,7 +89,7 @@ class IdentifyResultViewModel : ViewModel() {
      * @param layerContent
      * @param geoelement
      */
-    private fun highlightFeatureInFeatureLayer(layerContent: LayerContent, geoelement: GeoElement) {
+    fun highlightFeatureInFeatureLayer(layerContent: LayerContent, geoelement: GeoElement) {
         val featureLayer: FeatureLayer? = layerContent as? FeatureLayer
         featureLayer?.selectFeature(geoelement as Feature)
     }
