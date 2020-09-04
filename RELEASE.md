@@ -1,3 +1,7 @@
+# Release 0.1.2
+
+- Support for ArcGIS Runtime SDK for Android 100.9.0
+
 # Release 0.1.1
 
 - Adds doc table of contents to root README.md and docs/index.md
