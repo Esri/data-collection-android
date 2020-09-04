@@ -20,6 +20,7 @@
     <data>
         <import type="android.view.View"/>
         <import type="com.esri.arcgisruntime.ArcGISRuntimeEnvironment"/>
+        <import type="com.esri.arcgisruntime.opensourceapps.datacollection.BuildConfig"/>
         <variable
                 name="dataCollectionViewModel"
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel" />
@@ -157,7 +158,7 @@
                 android:id="@+id/appNameVersion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{@string/app_name_with_version(@string/app_version)}"
+                android:text="@{@string/app_name_with_version(BuildConfig.VERSION_NAME)}"
                 android:textColor="#B8DAB8"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
