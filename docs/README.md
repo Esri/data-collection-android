@@ -1,5 +1,30 @@
 # Data Collection for Android documentation
 
+<!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [Description](#description)   
+   - [Generic application](#generic-application)   
+   - [Portland Tree Survey](#portland-tree-survey)   
+- [Using the app](#using-the-app)   
+   - [Manage the app's context](#manage-the-apps-context)   
+      - [Sign in and out of portal](#sign-in-and-out-of-portal)   
+   - [Identify map features](#identify-map-features)   
+   - [View data with pop-ups](#view-data-with-pop-ups)   
+- [Using web maps](#using-web-maps)   
+   - [Configure web map & feature services for Data Collection](#configure-web-map-feature-services-for-data-collection)   
+      - [Map title](#map-title)   
+      - [Organizing feature layers](#organizing-feature-layers)   
+      - [Feature layer visibility range](#feature-layer-visibility-range)   
+      - [Enable editing on feature layers and tables](#enable-editing-on-feature-layers-and-tables)   
+      - [Enable pop-up on feature layers and tables](#enable-pop-up-on-feature-layers-and-tables)   
+      - [Configure pop-up on feature layers and tables](#configure-pop-up-on-feature-layers-and-tables)   
+- [Authentication model](#authentication-model)   
+- [Using map definition & pop-up configurations to drive app behavior](#using-map-definition-pop-up-configurations-to-drive-app-behavior)   
+   - [Map identify rules](#map-identify-rules)   
+
+<!-- /MDTOC -->
+---
+
 ## Description
 
 Collect data in an app consuming your organization's web map driven by the ArcGIS Web GIS information model. Use the example _Portland Tree Survey_ web map and dataset to get started.

@@ -173,6 +173,8 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
 
     /**
      * Sets the current bottomsheet state, to restore the bottomsheet to on orientation change.
+     *
+     * @param bottomSheetState the state to set on the bottomsheet
      */
     fun setCurrentBottomSheetState(bottomSheetState: Int) {
         _bottomSheetState.value = bottomSheetState
