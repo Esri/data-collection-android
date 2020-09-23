@@ -144,6 +144,9 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
+            if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
+                bottomSheetNavController.popBackStack()
+            }
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)

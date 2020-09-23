@@ -83,17 +83,16 @@ class PopupView : FrameLayout {
         }
 
     var editMode: Boolean = false
-        set(value) {field = value
-            if (field) {
-                popupManager.startEditing()
-                popupAttributeListAdapter.notifyDataSetChanged()
-            }
+        set(value) {
+            field = value
+            popupAttributeListAdapter.notifyDataSetChanged()
         }
 
     var saveEdit: Boolean = false
         set(value) {field = value
             if (field) {
                 saveEdits()
+                editMode = false
             }
         }
 
@@ -146,6 +145,8 @@ class PopupView : FrameLayout {
 //    }
 
     private fun saveEdits() {
+
+        popupManager.startEditing()
         var exception: ArcGISRuntimeException? = null
         for (attribute in popupAttributeList) {
           val attributeNewValue = attribute.tempValue.toString()
@@ -163,6 +164,8 @@ class PopupView : FrameLayout {
                 }
 
                 if (exception == null) {
+                    // update the attribute value with the new value
+                    attribute.value = attribute.tempValue.toString()
                     savePopup()
                 }
             }
@@ -318,7 +321,7 @@ class PopupView : FrameLayout {
     data class PopupAttribute(
         val field: PopupField,
         val fieldName: String,
-        val value: String,
+        var value: String,
         val fieldType: Field.Type,
         val isEditable: Boolean,
         var tempValue: Editable? = null
@@ -344,9 +347,7 @@ class PopupView : FrameLayout {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val popupAttribute: PopupAttribute = getItem(position)
-            if (editMode) {
-                holder.setViewsBehavior(popupAttribute)
-            }
+            holder.setViewsBehavior(popupAttribute)
 
             holder.bind(popupAttribute)
         }
@@ -400,6 +401,10 @@ class PopupView : FrameLayout {
                 popupFieldValue.visibility = View.GONE
                 popupFieldEditValue.doAfterTextChanged {
                     popupAttribute.tempValue = popupFieldEditValue.text}
+            } else {
+                popupFieldEditValue.visibility = View.GONE
+                popupFieldValue.visibility = View.VISIBLE
+                popupAttribute.tempValue = null
             }
         }
 

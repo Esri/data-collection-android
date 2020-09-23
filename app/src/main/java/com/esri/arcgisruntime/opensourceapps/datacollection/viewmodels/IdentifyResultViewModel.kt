@@ -89,6 +89,10 @@ class IdentifyResultViewModel : ViewModel() {
         _showPopupAttributeListEvent.raiseEvent()
     }
 
+    fun showIdentifiedPopupAttribute() {
+        _showIdentifiedPopupAttributeEvent.raiseEvent()
+    }
+
     fun enableEditMode() {
         _isPopupInEditMode.value = true
     }
