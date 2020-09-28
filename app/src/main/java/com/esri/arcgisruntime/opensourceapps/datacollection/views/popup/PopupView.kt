@@ -92,7 +92,6 @@ class PopupView : FrameLayout {
         set(value) {field = value
             if (field) {
                 saveEdits()
-                editMode = false
             }
         }
 
@@ -123,35 +122,13 @@ class PopupView : FrameLayout {
         popupRecyclerView.adapter = popupAttributeListAdapter
     }
 
-//    /**
-//     * Iterates over all the display fields of the popup to get their values and adds them to the
-//     * list of PopupAttributes.
-//     */
-//    private fun getPopupAttributeList(): ArrayList<PopupAttribute> {
-//
-//        val fields: List<PopupField> = popupManager.displayedFields
-//        val popupDisplayFieldsWithValues: ArrayList<PopupAttribute> = ArrayList()
-//        for (field in fields) {
-//            popupDisplayFieldsWithValues.add(
-//                PopupAttribute(
-//                    field.label,
-//                    popupManager.getFormattedValue(field),
-//                    popupManager.getFieldType(field),
-//                    popupManager.editableFields.contains(field)
-//                )
-//            )
-//        }
-//        return popupDisplayFieldsWithValues
-//    }
-
+    /**
+     * Updates and saves popup field values that have been edited by the user.
+     */
     private fun saveEdits() {
-
         popupManager.startEditing()
-        var exception: ArcGISRuntimeException? = null
+        var exception: ArcGISRuntimeException?
         for (attribute in popupAttributeList) {
-          val attributeNewValue = attribute.tempValue.toString()
-            val attributeTitle = attribute.fieldName
-            val attributeValue = attribute.value
             if (attribute.tempValue != null && attribute.tempValue.toString() != attribute.value && attribute.isEditable) {
                 exception =
                     updateValue(popupManager, attribute.field, attribute.tempValue.toString())
@@ -161,9 +138,7 @@ class PopupView : FrameLayout {
                         "There was an error saving the feature, the value for  $fieldName is invalid"
                     showSnackbarMessage(message)
                     break
-                }
-
-                if (exception == null) {
+                } else {
                     // update the attribute value with the new value
                     attribute.value = attribute.tempValue.toString()
                     savePopup()
@@ -172,11 +147,17 @@ class PopupView : FrameLayout {
         }
     }
 
+    /**
+     * Shows the message in a Snackbar.
+     */
     private fun showSnackbarMessage(message: String) {
         val snackbar: Snackbar = Snackbar.make(this, message, Snackbar.LENGTH_LONG)
         snackbar.show()
     }
 
+    /**
+     * Saves the popup by applying changes to the feature service.
+     */
     private fun savePopup() {
         val editingErrorFuture: ListenableFuture<ArcGISRuntimeException> = popupManager.finishEditingAsync()
         editingErrorFuture.addDoneListener {
@@ -212,7 +193,6 @@ class PopupView : FrameLayout {
                         }
                     }
                 }
-
             } catch (ie: InterruptedException) {
                 Logger.e(
                     "Exception encountered when saving popup, " + Util.getExceptionMessageAndCause(
@@ -230,7 +210,7 @@ class PopupView : FrameLayout {
     }
 
     /**
-     *
+     * Checks for errors in FeatureEditResults obtained from applying edits to service feature table.
      */
     private fun checkEditResultForErrors(featureEditResults: List<FeatureEditResult>): Boolean {
         var errorEncountered = false
@@ -245,11 +225,11 @@ class PopupView : FrameLayout {
 
 
     /**
-     * Update the given field value with the appropriately cast string value
+     * Updates the given popup field value with the appropriately cast string value.
      *
      * @param manager - PopupManager
      * @param field   - PopupField
-     * @param value       - String
+     * @param value   - String
      * @return - ArcGISRuntimeException if there's a problem updating the field value,
      * otherwise null.
      */
@@ -260,58 +240,47 @@ class PopupView : FrameLayout {
     ): ArcGISRuntimeException? {
         var error: ArcGISRuntimeException? = null
 
-//        // Domain?
-//        val domain = manager.getDomain(field)
-//        if (domain is CodedValueDomain) {
-//            error =
-//                com.esri.arcgisruntime.exampleapps.mobiledatacollector.util.AppUtils.setCodedValueForDomain(
-//                    field,
-//                    value,
-//                    manager
-//                )
-//        } else {
-            when (manager.getFieldType(field)) {
-                Field.Type.SHORT -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
-                    manager.updateValue(null, field)
-                } else {
-                    manager.updateValue(value.toString().toShort(), field)
-                }
-                Field.Type.INTEGER -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
-                    manager.updateValue(null, field)
-                } else {
-                    manager.updateValue(value.toString().toInt(), field)
-                }
-                Field.Type.FLOAT -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
-                    manager.updateValue(null, field)
-                } else {
-                    manager.updateValue(value.toString().toFloat(), field)
-                }
-                Field.Type.DOUBLE -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
-                    manager.updateValue(null, field)
-                } else {
-                    manager.updateValue(value.toString().toDouble(), field)
-                }
-                Field.Type.DATE -> {
-                    val calendar = Calendar.getInstance()
-                    // Save any non-empty dates
-                    if (value!!.trim { it <= ' ' }.isNotEmpty()) {
-                        try {
-                            val date = SimpleDateFormat(
-                                "M/dd/yy hh:m a",
-                                Locale.getDefault()
-                            ).parse(value)
-                            calendar.timeInMillis = date.time
-                            error = manager.updateValue(calendar, field)
-                        } catch (e: ParseException) {
-                            Logger.e("Parse Exception when converting string $value to a date.")
-                        }
+        when (manager.getFieldType(field)) {
+            Field.Type.SHORT -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
+                manager.updateValue(null, field)
+            } else {
+                manager.updateValue(value.toString().toShort(), field)
+            }
+            Field.Type.INTEGER -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
+                manager.updateValue(null, field)
+            } else {
+                manager.updateValue(value.toString().toInt(), field)
+            }
+            Field.Type.FLOAT -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
+                manager.updateValue(null, field)
+            } else {
+                manager.updateValue(value.toString().toFloat(), field)
+            }
+            Field.Type.DOUBLE -> error = if (value == null || value.trim { it <= ' ' }.isEmpty()) {
+                manager.updateValue(null, field)
+            } else {
+                manager.updateValue(value.toString().toDouble(), field)
+            }
+            Field.Type.DATE -> {
+                val calendar = Calendar.getInstance()
+                // Save any non-empty dates
+                if (value!!.trim { it <= ' ' }.isNotEmpty()) {
+                    try {
+                        val date = SimpleDateFormat(
+                            "M/dd/yy hh:m a",
+                            Locale.getDefault()
+                        ).parse(value)
+                        calendar.timeInMillis = date.time
+                        error = manager.updateValue(calendar, field)
+                    } catch (e: ParseException) {
+                        Logger.e("Parse Exception when converting string $value to a date.")
                     }
                 }
-                Field.Type.TEXT -> error =
-                    manager.updateValue(value.toString(), field)
-                else -> Logger.i("Unhandled field type: " + manager.getFieldType(field))
             }
-//        }
+            Field.Type.TEXT -> error =
+                manager.updateValue(value.toString(), field)
+            else -> Logger.i("Unhandled field type: " + manager.getFieldType(field))
+        }
         return error
     }
 
@@ -394,11 +363,17 @@ class PopupView : FrameLayout {
             binding.executePendingBindings()
         }
 
+        /**
+         * Toggles the view for popup field value from edittext to textview and vice-versa, given the
+         * edit mode of the popupView.
+         */
         fun setViewsBehavior(popupAttribute: PopupAttribute) {
             if (isEditable(popupAttribute)) {
                 popupFieldEditValue.inputType = getInputType(popupAttribute.fieldType)
                 popupFieldEditValue.visibility = View.VISIBLE
                 popupFieldValue.visibility = View.GONE
+                // here we assign and hold the values of the editable fields, entered by the user
+                // in popupAttribute.tempValue
                 popupFieldEditValue.doAfterTextChanged {
                     popupAttribute.tempValue = popupFieldEditValue.text}
             } else {
@@ -408,14 +383,13 @@ class PopupView : FrameLayout {
             }
         }
 
-        fun onTextChanged(newValue: Editable) {
-//            popupFieldEditValue.text = newValue
-        }
-
+        /**
+         * Returns whether the popup attribute is editable based on the status of popupView edit mode
+         * and if the popup attribute is editable.
+         */
         fun isEditable(popupAttribute: PopupAttribute): Boolean {
             return editMode && popupAttribute.isEditable
         }
-
 
         /**
          * Returns the int value representing the input type for EditText view.
@@ -430,12 +404,15 @@ class PopupView : FrameLayout {
         }
     }
 
+    /**
+     * Helper class containing utility static methods.
+     */
     private class Util {
 
-
         companion object {
+
             /**
-             * Get the full error message from the exception
+             * Gets the full error message from the exception
              *
              * @param exception - Exception
              */

@@ -66,7 +66,7 @@
                     android:layout_width="30dp"
                     android:layout_height="34dp"
                     android:layout_marginStart="12dp"
-                    android:onClick="@{() -> identifyResultViewModel.enableEditMode()}"
+                    android:onClick="@{() -> identifyResultViewModel.setEditMode(true)}"
                     android:visibility="@{identifyResultViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -98,7 +98,7 @@
                     android:layout_width="30dp"
                     android:layout_height="34dp"
                     android:contentDescription="@string/cancel"
-                    android:onClick="@{() -> identifyResultViewModel.disableEditMode()}"
+                    android:onClick="@{() -> identifyResultViewModel.setEditMode(false)}"
                     android:visibility="@{identifyResultViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/edit"
@@ -114,13 +114,18 @@
                 android:layout_height="2dp"
                 android:background="#c0c0c0"/>
 
-        <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
-            android:id="@+id/popupView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:popup="@{identifyResultViewModel.identifiedPopup}"
-            app:editMode="@{identifyResultViewModel.isPopupInEditMode}"
-            app:saveEdit="@{identifyResultViewModel.isPopupSaveEdit}"    />
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <!-- warp popupview with CoordinatorLayout to show the snackbar -->
+            <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
+                    android:id="@+id/popupView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:editMode="@{identifyResultViewModel.isPopupInEditMode}"
+                    app:popup="@{identifyResultViewModel.identifiedPopup}" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
     </LinearLayout>
 
 </layout>

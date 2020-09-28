@@ -50,8 +50,8 @@ class IdentifyResultViewModel : ViewModel() {
     private val _isPopupInEditMode = MutableLiveData<Boolean>()
     val isPopupInEditMode: LiveData<Boolean> = _isPopupInEditMode
 
-    private val _isPopupSaveEdit = MutableLiveData<Boolean>()
-    val isPopupSaveEdit: LiveData<Boolean> = _isPopupSaveEdit
+    private val _savePopupEvent = MutableLiveData<Event<Unit>>()
+    val savePopupEvent: LiveData<Event<Unit>> = _savePopupEvent
 
     /**
      * Highlights the result popup in the GeoView.
@@ -89,19 +89,26 @@ class IdentifyResultViewModel : ViewModel() {
         _showPopupAttributeListEvent.raiseEvent()
     }
 
+    /**
+     * Called when user taps on the identified popup attribute list header in the expanded bottom sheet
+     * Kicks off IdentifyResultFragment
+     */
     fun showIdentifiedPopupAttribute() {
         _showIdentifiedPopupAttributeEvent.raiseEvent()
     }
 
-    fun enableEditMode() {
-        _isPopupInEditMode.value = true
+    /**
+     * Enables/disables edit mode on the PopupView
+     */
+    fun setEditMode(isEnable: Boolean) {
+        _isPopupInEditMode.value = isEnable
     }
 
+    /**
+     * Triggers the save event on the PopupView
+     */
     fun saveEdits() {
-        _isPopupSaveEdit.value = true
-    }
-
-    fun disableEditMode() {
+        _savePopupEvent.raiseEvent()
         _isPopupInEditMode.value = false
     }
 

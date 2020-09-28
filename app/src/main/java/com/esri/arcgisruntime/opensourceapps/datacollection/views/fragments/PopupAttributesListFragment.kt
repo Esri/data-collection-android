@@ -25,7 +25,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupAttributeListBinding
+import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.fragment_popup_attribute_list.*
 
 /**
  * Responsible for displaying PopupAttribute list.
@@ -47,6 +50,10 @@ class PopupAttributesListFragment : Fragment() {
 
         binding.identifyResultViewModel = viewModel
         binding.lifecycleOwner = this
+
+        viewModel.savePopupEvent.observeEvent(viewLifecycleOwner) {
+            popupView.saveEdit = true
+        }
 
         return binding.root
     }
