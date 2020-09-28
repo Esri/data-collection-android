@@ -144,6 +144,8 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
+            // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
+            // bottomsheet containing popupAttributeListFragment.
             if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
                 bottomSheetNavController.popBackStack()
             }
