@@ -135,6 +135,7 @@ class PopupView : FrameLayout {
         var exception: ArcGISRuntimeException?
         for (attribute in popupAttributeList) {
             if (attribute.tempValue != null && attribute.tempValue.toString() != attribute.value && attribute.isEditable) {
+                // update the edits locally
                 exception =
                     updateValue(popupManager, attribute.field, attribute.tempValue.toString())
                 if (exception != null) {
@@ -176,7 +177,8 @@ class PopupView : FrameLayout {
                     applyEditsFuture.addDoneListener {
                         try {
                             val featureEditResults: List<FeatureEditResult> = applyEditsFuture.get()
-                            if (checkEditResultForErrors(featureEditResults)) {
+                            // Check for errors in FeatureEditResults
+                            if (featureEditResults.any { result -> result.hasCompletedWithErrors() }) {
                                 showSnackbarMessage("There was a problem saving the feature")
                             } else {
                                 showSnackbarMessage("Feature saved successfully")
@@ -212,21 +214,6 @@ class PopupView : FrameLayout {
             }
         }
     }
-
-    /**
-     * Checks for errors in FeatureEditResults obtained from applying edits to service feature table.
-     */
-    private fun checkEditResultForErrors(featureEditResults: List<FeatureEditResult>): Boolean {
-        var errorEncountered = false
-        for (result in featureEditResults) {
-            if (result.hasCompletedWithErrors()) {
-                errorEncountered = true
-                break
-            }
-        }
-        return errorEncountered
-    }
-
 
     /**
      * Updates the given popup field value with the appropriately cast string value.
