@@ -35,7 +35,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
 import com.esri.arcgisruntime.concurrent.ListenableFuture
-import com.esri.arcgisruntime.data.*
+import com.esri.arcgisruntime.data.Feature
+import com.esri.arcgisruntime.data.FeatureEditResult
+import com.esri.arcgisruntime.data.FeatureTable
+import com.esri.arcgisruntime.data.Field
+import com.esri.arcgisruntime.data.ServiceFeatureTable
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
@@ -47,7 +51,8 @@ import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.ExecutionException
 import kotlin.collections.ArrayList
 
@@ -137,7 +142,6 @@ class PopupView : FrameLayout {
                     val message =
                         "There was an error saving the feature, the value for  $fieldName is invalid"
                     showSnackbarMessage(message)
-                    break
                 } else {
                     // update the attribute value with the new value
                     attribute.value = attribute.tempValue.toString()
