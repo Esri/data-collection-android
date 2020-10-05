@@ -117,8 +117,7 @@ class PopupView : FrameLayout {
      * Shows the message in a Snackbar.
      */
     private fun showSnackbarMessage(message: String) {
-        val snackbar: Snackbar = Snackbar.make(this, message, Snackbar.LENGTH_LONG)
-        snackbar.show()
+        Snackbar.make(this, message, Snackbar.LENGTH_LONG).show()
     }
 
     /**
@@ -263,12 +262,11 @@ class PopupView : FrameLayout {
                         )
                         validationError?.let {
                             Util.getExceptionMessageAndCause(it)
-                            val snackbar: Snackbar = Snackbar.make(
+                            Snackbar.make(
                                 binding.root,
                                 Util.getExceptionMessageAndCause(it) as CharSequence,
                                 Snackbar.LENGTH_LONG
-                            )
-                            snackbar.show()
+                            ).show()
                         }
                     }
                 }
