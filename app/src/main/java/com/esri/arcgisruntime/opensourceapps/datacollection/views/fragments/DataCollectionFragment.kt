@@ -175,6 +175,7 @@ class DataCollectionFragment : Fragment() {
             when (destination.id) {
                 R.id.identifyResultFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
+                    identifyResultViewModel.setEditMode(false)
                 }
                 R.id.popupAttributeListFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value

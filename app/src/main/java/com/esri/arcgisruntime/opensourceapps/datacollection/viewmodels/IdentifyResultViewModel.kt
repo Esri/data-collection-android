@@ -50,6 +50,9 @@ class IdentifyResultViewModel : ViewModel() {
     private val _isPopupInEditMode = MutableLiveData<Boolean>()
     val isPopupInEditMode: LiveData<Boolean> = _isPopupInEditMode
 
+    private val _editPopupEvent = MutableLiveData<Event<Boolean>>()
+    val editPopupEvent: LiveData<Event<Boolean>> = _editPopupEvent
+
     private val _savePopupEvent = MutableLiveData<Event<Unit>>()
     val savePopupEvent: LiveData<Event<Unit>> = _savePopupEvent
 
@@ -102,6 +105,7 @@ class IdentifyResultViewModel : ViewModel() {
      */
     fun setEditMode(isEnable: Boolean) {
         _isPopupInEditMode.value = isEnable
+        _editPopupEvent.raiseEvent(isEnable)
     }
 
     /**

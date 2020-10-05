@@ -19,13 +19,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <import type="android.view.View"/>
         <variable
-                name="PopupView"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView"/>
+                name="popupManager"
+                type="com.esri.arcgisruntime.mapping.popup.PopupManager"/>
         <variable
-                name="popupAttribute"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView.PopupAttribute" />
+                name="popupField"
+                type="com.esri.arcgisruntime.mapping.popup.PopupField" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="16dp"
-                android:text="@{popupAttribute.fieldName}"
+                android:text="@{popupField.label}"
                 android:textSize="14dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -50,7 +49,7 @@
                 android:layout_marginTop="8dp"
                 android:ems="10"
                 android:textSize="18dp"
-                android:text="@{popupAttribute.value}"
+                android:text="@{popupManager.getFormattedValue(popupField)}"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -64,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@{popupAttribute.value}"
+                android:text="@{popupManager.getFormattedValue(popupField)}"
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
