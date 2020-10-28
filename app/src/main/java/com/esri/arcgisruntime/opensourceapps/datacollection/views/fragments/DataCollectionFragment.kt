@@ -41,6 +41,7 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
+import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -60,6 +61,8 @@ class DataCollectionFragment : Fragment() {
     // mapViewModel and dataCollectionViewModel are shared with NavigationDrawerFragment, thus we
     // use by activityViewModels()
     private val mapViewModel: MapViewModel by activityViewModels()
+
+    private val popupViewModel: PopupViewModel by activityViewModels()
 
     private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels {
         DataCollectionViewModel.Factory(
@@ -143,7 +146,7 @@ class DataCollectionFragment : Fragment() {
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
-        identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showIdentifiedPopupAttributesEvent.observeEvent(viewLifecycleOwner) {
             // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
             // bottomsheet containing popupAttributeListFragment.
             if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
@@ -175,7 +178,7 @@ class DataCollectionFragment : Fragment() {
             when (destination.id) {
                 R.id.identifyResultFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
-                    identifyResultViewModel.setEditMode(false)
+                    popupViewModel.cancelEditing()
                 }
                 R.id.popupAttributeListFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
@@ -234,6 +237,7 @@ class DataCollectionFragment : Fragment() {
             identifyLayerResultsFuture.addDoneListener {
                 try {
                     val identifyLayerResult = identifyLayerResultsFuture.get()
+                    popupViewModel.processIdentifyLayerResult(identifyLayerResult)
                     identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
                 } catch (e: Exception) {
                     Logger.i("Error identifying results ${e.message}")
@@ -248,7 +252,8 @@ class DataCollectionFragment : Fragment() {
      */
     private fun resetIdentifyResult() {
         mapViewModel.identifiableLayer?.clearSelection()
-        identifyResultViewModel.resetIdentifyResult()
+        identifyResultViewModel.resetIdentifyLayerResult()
+        popupViewModel.resetIdentifiedPopup()
     }
 
     override fun onPause() {

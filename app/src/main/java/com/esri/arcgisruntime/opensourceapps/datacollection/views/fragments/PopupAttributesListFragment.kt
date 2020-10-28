@@ -20,19 +20,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupAttributeListBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
+import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 import kotlinx.android.synthetic.main.fragment_popup_attribute_list.*
 
 /**
  * Responsible for displaying PopupAttribute list.
  */
 class PopupAttributesListFragment : Fragment() {
+
+    private val popupViewModel: PopupViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,19 +50,73 @@ class PopupAttributesListFragment : Fragment() {
             false
         )
 
-        val viewModel: IdentifyResultViewModel by activityViewModels()
+        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels()
 
-        binding.identifyResultViewModel = viewModel
+        binding.identifyResultViewModel = identifyResultViewModel
+        binding.popupViewModel = popupViewModel
         binding.lifecycleOwner = this
 
-        viewModel.savePopupEvent.observeEvent(viewLifecycleOwner) {
-            popupView.saveEdit = true
+        popupViewModel.isPopupInEditMode.observe(viewLifecycleOwner, Observer {
+            popupView.setEditMode(it)
+        })
+
+        popupViewModel.cancelPopupEditingEvent.observeEvent(viewLifecycleOwner) {
+            popupView.cancelEditing()
         }
 
-        viewModel.editPopupEvent.observeEvent(viewLifecycleOwner) { enableEditMode ->
-            popupView.editMode = enableEditMode
+        popupViewModel.toggleSavingPopupProgressBarEvent.observeEvent(viewLifecycleOwner) { isShowProgressBar ->
+            if (isShowProgressBar) {
+                progressBarLayout.visibility = View.VISIBLE
+            } else {
+                progressBarLayout.visibility = View.GONE
+            }
+        }
+
+        popupViewModel.showSavePopupErrorEvent.observeEvent(viewLifecycleOwner) { errorMessage ->
+            showAlertDialog(errorMessage)
+        }
+
+        popupViewModel.confirmCancelPopupEditingEvent.observeEvent(viewLifecycleOwner) {
+            showConfirmCancelEditingDialog()
         }
 
         return binding.root
     }
+
+    /**
+     * Shows dialog to confirm cancelling edit mode on popup view.
+     */
+    private fun showConfirmCancelEditingDialog() {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Discard changes?")
+            .setCancelable(false)
+            // positive button text and action
+            .setPositiveButton("OK") { dialog, id ->
+                popupViewModel.cancelEditing()
+            }
+            // negative button text and action
+            .setNegativeButton("Cancel") { dialog, id -> dialog.cancel()
+            }
+        val alert = dialogBuilder.create()
+        // show alert dialog
+        alert.show()
+    }
+
+    /**
+     * Shows error message to the use in a dialog.
+     */
+    private fun showAlertDialog(message: String) {
+
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage(message)
+            .setCancelable(false)
+            // positive button text and action
+            .setPositiveButton("OK") { dialog, id ->
+                dialog.cancel()
+            }
+        val alert = dialogBuilder.create()
+        // show alert dialog
+        alert.show()
+    }
+
 }

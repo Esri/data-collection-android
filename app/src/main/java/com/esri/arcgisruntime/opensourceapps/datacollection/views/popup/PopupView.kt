@@ -17,6 +17,8 @@
 package com.esri.arcgisruntime.opensourceapps.datacollection.views.popup
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -33,22 +35,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
-import com.esri.arcgisruntime.concurrent.ListenableFuture
-import com.esri.arcgisruntime.data.Feature
-import com.esri.arcgisruntime.data.FeatureEditResult
-import com.esri.arcgisruntime.data.FeatureTable
 import com.esri.arcgisruntime.data.Field
-import com.esri.arcgisruntime.data.ServiceFeatureTable
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
 import com.esri.arcgisruntime.opensourceapps.datacollection.BR
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
-import java.util.concurrent.ExecutionException
 
 /**
  * Displays the popup attribute list in a [RecyclerView].
@@ -56,39 +50,10 @@ import java.util.concurrent.ExecutionException
 class PopupView : FrameLayout {
 
     private val popupAttributeListAdapter by lazy { PopupAttributeListAdapter() }
+    private var isEditMode: Boolean = false
 
-    var popup: Popup? = null
-        set(value) {
-            field = value
-            popupAttributeListAdapter.submitList(popupManager.displayedFields)
-        }
-
-    var editMode: Boolean = false
-        set(value) {
-            field = value
-            if (field) {
-                popupAttributeListAdapter.submitList(popupManager.editableFields)
-                popupManager.startEditing()
-            } else if (popup != null) {
-                popupAttributeListAdapter.submitList(popupManager.displayedFields)
-                if (!saveEdit) {
-                    popupManager.cancelEditing()
-                }
-            }
-            popupAttributeListAdapter.notifyDataSetChanged()
-        }
-
-    var saveEdit: Boolean = false
-        set(value) {field = value
-            if (field) {
-                savePopup()
-                editMode = false
-            }
-        }
-
-    private val popupManager by lazy {
-        PopupManager(context, popup)
-    }
+    lateinit var popupManager: PopupManager
+    lateinit var popup: Popup
 
     /**
      * Constructor used when instantiating this View directly to attach it to another view programmatically.
@@ -114,65 +79,24 @@ class PopupView : FrameLayout {
     }
 
     /**
-     * Shows the message in a Snackbar.
+     * Cancels the current editing session.
      */
-    private fun showSnackbarMessage(message: String) {
-        Snackbar.make(this, message, Snackbar.LENGTH_LONG).show()
+    fun cancelEditing() {
+        popupManager.cancelEditing()
     }
 
     /**
-     * Saves the popup by applying changes to the feature service.
+     * Enables/Disables edit mode on the PopupView.
      */
-    private fun savePopup() {
-        val editingErrorFuture: ListenableFuture<ArcGISRuntimeException> = popupManager.finishEditingAsync()
-        editingErrorFuture.addDoneListener {
-            try {
-                editingErrorFuture.get()
-
-                val feature: Feature = popupManager.popup.geoElement as Feature
-                val featureTable: FeatureTable = feature.featureTable
-                if (featureTable is ServiceFeatureTable) {
-                    val applyEditsFuture: ListenableFuture<List<FeatureEditResult>> =
-                        featureTable.applyEditsAsync()
-                    applyEditsFuture.addDoneListener {
-                        try {
-                            val featureEditResults: List<FeatureEditResult> = applyEditsFuture.get()
-                            // Check for errors in FeatureEditResults
-                            if (featureEditResults.any { result -> result.hasCompletedWithErrors() }) {
-                                showSnackbarMessage("There was a problem saving the feature")
-                            } else {
-                                showSnackbarMessage("Feature saved successfully")
-                            }
-
-                        } catch (ie: InterruptedException) {
-                            Logger.e(
-                                "Exception encountered when saving popup, " + Util.getExceptionMessageAndCause(
-                                    ie
-                                )
-                            )
-                        } catch (ee: ExecutionException) {
-                            Logger.e(
-                                "Exception encountered when saving popup, " + Util.getExceptionMessageAndCause(
-                                    ee
-                                )
-                            )
-                        }
-                    }
-                }
-            } catch (ie: InterruptedException) {
-                Logger.e(
-                    "Exception encountered when saving popup, " + Util.getExceptionMessageAndCause(
-                        ie
-                    )
-                )
-            } catch (ee: ExecutionException) {
-                Logger.e(
-                    "Exception encountered when saving popup, " + Util.getExceptionMessageAndCause(
-                        ee
-                    )
-                )
-            }
+    fun setEditMode(isEnabled: Boolean) {
+        isEditMode = isEnabled
+        if (isEnabled) {
+            popupAttributeListAdapter.submitList(popupManager.editableFields)
+            popupManager.startEditing()
+        } else {
+            popupAttributeListAdapter.submitList(popupManager.displayedFields)
         }
+        popupAttributeListAdapter.notifyDataSetChanged()
     }
 
     /**
@@ -195,7 +119,7 @@ class PopupView : FrameLayout {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val popupField: PopupField = getItem(position)
-            holder.setViewsBehavior(popupField)
+            holder.updateViewMode(popupField)
 
             holder.bind(popupField)
         }
@@ -227,6 +151,10 @@ class PopupView : FrameLayout {
     private inner class ViewHolder(private val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        val popupFieldLabel: TextView by lazy {
+            binding.root.popupField
+        }
+
         val popupFieldValue: TextView by lazy {
             binding.root.popupFieldValue
         }
@@ -247,11 +175,12 @@ class PopupView : FrameLayout {
          * Toggles the view for popup field value from edittext to textview and vice-versa, given the
          * edit mode of the popupView.
          */
-        fun setViewsBehavior(popupField: PopupField) {
-            if (editMode) {
-                popupFieldEditValue.inputType = getInputType(popupManager.getFieldType(popupField))
+        fun updateViewMode(popupField: PopupField) {
+            if (isEditMode) {
                 popupFieldEditValue.visibility = View.VISIBLE
                 popupFieldValue.visibility = View.GONE
+                //save original colors
+                val oldColors: ColorStateList = popupFieldLabel.textColors
                 // here we assign and hold the values of the editable fields, entered by the user
                 // in popupAttribute.tempValue
                 popupFieldEditValue.doAfterTextChanged {
@@ -260,13 +189,14 @@ class PopupView : FrameLayout {
                             popupFieldEditValue.text.toString(),
                             popupField
                         )
-                        validationError?.let {
-                            Util.getExceptionMessageAndCause(it)
-                            Snackbar.make(
-                                binding.root,
-                                Util.getExceptionMessageAndCause(it) as CharSequence,
-                                Snackbar.LENGTH_LONG
-                            ).show()
+
+                        if (validationError != null) {
+                            val fieldLabelWithValidationError = popupField.label + ": " + validationError.message
+                            popupFieldLabel.text = fieldLabelWithValidationError
+                            popupFieldLabel.setTextColor(Color.RED)
+                        } else {
+                            popupFieldLabel.text = popupField.label
+                            popupFieldLabel.setTextColor(oldColors)
                         }
                     }
                 }
@@ -275,45 +205,5 @@ class PopupView : FrameLayout {
                 popupFieldValue.visibility = View.VISIBLE
             }
         }
-
-        /**
-         * Returns the int value representing the input type for EditText view.
-         */
-        private fun getInputType(fieldType: Field.Type): Int {
-            return when (fieldType) {
-                Field.Type.SHORT, Field.Type.INTEGER -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
-                Field.Type.FLOAT, Field.Type.DOUBLE -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-                Field.Type.DATE -> InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_DATE or InputType.TYPE_DATETIME_VARIATION_NORMAL
-                else -> InputType.TYPE_CLASS_TEXT
-            }
-        }
     }
-
-    /**
-     * Helper class containing utility static methods.
-     */
-    private class Util {
-
-        companion object {
-
-            /**
-             * Gets the full error message from the exception
-             *
-             * @param exception - Exception
-             */
-            fun getExceptionMessageAndCause(exception: Exception): String? {
-                var message = exception.message
-                if (exception.cause != null) {
-                    message = message + " Cause = " + exception.cause!!.message
-                    if (exception.cause is ArcGISRuntimeException) {
-                        val arcGISRuntimeException =
-                            exception.cause as ArcGISRuntimeException?
-                        message += ", additional message: " + arcGISRuntimeException!!.additionalMessage
-                    }
-                }
-                return message
-            }
-        }
-    }
-
 }

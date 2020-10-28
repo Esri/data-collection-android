@@ -23,43 +23,29 @@ import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.LayerContent
 import com.esri.arcgisruntime.mapping.GeoElement
-import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 
 /**
  * The view model for IdentifyResultFragment, that is responsible for processing the result of
- * identify layer operation on MapView and displaying the values of the display fields of result
- * Popup in the bottom sheet.
+ * identify layer operation on MapView, highlighting the selected feature and displaying the values
+ * of the display fields of result Popup in the bottom sheet.
  */
 class IdentifyResultViewModel : ViewModel() {
 
-    private val _showIdentifiedPopupAttributeEvent = MutableLiveData<Event<Unit>>()
-    val showIdentifiedPopupAttributeEvent: LiveData<Event<Unit>> = _showIdentifiedPopupAttributeEvent
+    private val _showIdentifiedPopupAttributesEvent = MutableLiveData<Event<Unit>>()
+    val showIdentifiedPopupAttributesEvent: LiveData<Event<Unit>> = _showIdentifiedPopupAttributesEvent
 
     private val _identifyLayerResult = MutableLiveData<IdentifyLayerResult>()
     val identifyLayerResult: LiveData<IdentifyLayerResult> = _identifyLayerResult
 
-    private val _identifiedPopup = MutableLiveData<Popup>()
-    val identifiedPopup: LiveData<Popup> = _identifiedPopup
-
     private val _showPopupAttributeListEvent = MutableLiveData<Event<Unit>>()
     val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
 
-    private val _isPopupInEditMode = MutableLiveData<Boolean>()
-    val isPopupInEditMode: LiveData<Boolean> = _isPopupInEditMode
-
-    private val _editPopupEvent = MutableLiveData<Event<Boolean>>()
-    val editPopupEvent: LiveData<Event<Boolean>> = _editPopupEvent
-
-    private val _savePopupEvent = MutableLiveData<Event<Unit>>()
-    val savePopupEvent: LiveData<Event<Unit>> = _savePopupEvent
 
     /**
      * Highlights the result popup in the GeoView.
-     * Updates identifiedPopup property to set the popup field values being displayed in
-     * the bottom sheet.
      *
      * @param identifyLayerResult
      */
@@ -68,8 +54,7 @@ class IdentifyResultViewModel : ViewModel() {
     ) {
         if (identifyLayerResult.popups.size > 0) {
             _identifyLayerResult.value = identifyLayerResult
-            _identifiedPopup.value = identifyLayerResult.popups[0]
-            _showIdentifiedPopupAttributeEvent.raiseEvent()
+            _showIdentifiedPopupAttributesEvent.raiseEvent()
             highlightFeatureInFeatureLayer(
                 identifyLayerResult.layerContent,
                 identifyLayerResult.popups[0].geoElement
@@ -80,9 +65,8 @@ class IdentifyResultViewModel : ViewModel() {
     /**
      * Resets the result of the identify operation
      */
-    fun resetIdentifyResult() {
+    fun resetIdentifyLayerResult() {
         _identifyLayerResult.value = null
-        _identifiedPopup.value = null
     }
 
     /**
@@ -96,25 +80,10 @@ class IdentifyResultViewModel : ViewModel() {
      * Called when user taps on the identified popup attribute list header in the expanded bottom sheet
      * Kicks off IdentifyResultFragment
      */
-    fun showIdentifiedPopupAttribute() {
-        _showIdentifiedPopupAttributeEvent.raiseEvent()
+    fun showIdentifiedPopupAttributes() {
+        _showIdentifiedPopupAttributesEvent.raiseEvent()
     }
 
-    /**
-     * Enables/disables edit mode on the PopupView
-     */
-    fun setEditMode(isEnable: Boolean) {
-        _isPopupInEditMode.value = isEnable
-        _editPopupEvent.raiseEvent(isEnable)
-    }
-
-    /**
-     * Triggers the save event on the PopupView
-     */
-    fun saveEdits() {
-        _savePopupEvent.raiseEvent()
-        _isPopupInEditMode.value = false
-    }
 
     /**
      * Highlights the GeoElement in the GeoView.
