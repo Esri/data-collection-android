@@ -19,7 +19,6 @@ package com.esri.arcgisruntime.opensourceapps.datacollection.views.popup
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -35,7 +34,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
-import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
@@ -76,13 +74,6 @@ class PopupView : FrameLayout {
         inflate(context, R.layout.layout_popupview, this)
         popupRecyclerView.layoutManager = LinearLayoutManager(context)
         popupRecyclerView.adapter = popupAttributeListAdapter
-    }
-
-    /**
-     * Cancels the current editing session.
-     */
-    fun cancelEditing() {
-        popupManager.cancelEditing()
     }
 
     /**

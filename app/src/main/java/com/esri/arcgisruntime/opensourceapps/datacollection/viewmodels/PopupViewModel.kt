@@ -1,7 +1,6 @@
 package com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,9 +30,6 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isPopupInEditMode = MutableLiveData<Boolean>()
     val isPopupInEditMode: LiveData<Boolean> = _isPopupInEditMode
-
-    private val _cancelPopupEditingEvent = MutableLiveData<Event<Unit>>()
-    val cancelPopupEditingEvent: LiveData<Event<Unit>> = _cancelPopupEditingEvent
 
     private val _showSavePopupErrorEvent = MutableLiveData<Event<String>>()
     val showSavePopupErrorEvent: LiveData<Event<String>> = _showSavePopupErrorEvent
@@ -77,7 +73,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
      * Cancels the edit mode.
      */
     fun cancelEditing() {
-        _cancelPopupEditingEvent.raiseEvent()
+        _popupManager.value?.cancelEditing()
         _isPopupInEditMode.value = false
     }
 
