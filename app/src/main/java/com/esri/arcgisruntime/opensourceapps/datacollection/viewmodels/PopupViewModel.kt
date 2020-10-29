@@ -111,6 +111,8 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                         applyEditsFuture.addDoneListener {
                             // dismiss the Progress bar
                             _toggleSavingPopupProgressBarEvent.raiseEvent(false)
+                            // dismiss edit mode
+                            _isPopupInEditMode.value = false
                             try {
                                 val featureEditResults: List<FeatureEditResult> =
                                     applyEditsFuture.get()
@@ -123,25 +125,12 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                                     exception.message?.let { exceptionMessage ->
                                         _showSavePopupErrorEvent.raiseEvent(exceptionMessage)
                                     }
-                                    // since an exception was encountered when trying to apply edits
-                                    // to the service and local edits were applied successfully there
-                                    // by finishing the edit session on PopupManager, we restart the
-                                    // editing on the popup manager
-                                    popupManager.startEditing()
-                                } else {
-                                // the feature was saved successfully, dismiss edit mode
-                                    _isPopupInEditMode.value = false
                                 }
 
                             } catch (exception: Exception) {
                                 exception.message?.let { exceptionMessage ->
                                     _showSavePopupErrorEvent.raiseEvent(exceptionMessage)
                                 }
-                                // since an exception was encountered when trying to apply edits
-                                // to the service and local edits were applied successfully there
-                                // by finishing the edit session on PopupManager, we restart the
-                                // editing on the popup manager
-                                popupManager.startEditing()
                             }
                         }
                     }

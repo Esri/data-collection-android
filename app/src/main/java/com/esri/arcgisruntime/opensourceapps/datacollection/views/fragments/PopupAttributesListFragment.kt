@@ -87,11 +87,11 @@ class PopupAttributesListFragment : Fragment() {
         dialogBuilder.setMessage("Discard changes?")
             .setCancelable(false)
             // positive button text and action
-            .setPositiveButton("OK") { dialog, id ->
+            .setPositiveButton(getString(R.string.ok)) { dialog, id ->
                 popupViewModel.cancelEditing()
             }
             // negative button text and action
-            .setNegativeButton("Cancel") { dialog, id -> dialog.cancel()
+            .setNegativeButton(getString(R.string.cancel)) { dialog, id -> dialog.cancel()
             }
         val alert = dialogBuilder.create()
         // show alert dialog
@@ -107,7 +107,7 @@ class PopupAttributesListFragment : Fragment() {
         dialogBuilder.setMessage(message)
             .setCancelable(false)
             // positive button text and action
-            .setPositiveButton("OK") { dialog, id ->
+            .setPositiveButton(getString(R.string.ok)) { dialog, id ->
                 dialog.cancel()
             }
         val alert = dialogBuilder.create()
