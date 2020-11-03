@@ -43,7 +43,6 @@ class IdentifyResultViewModel : ViewModel() {
     private val _showPopupAttributeListEvent = MutableLiveData<Event<Unit>>()
     val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
 
-
     /**
      * Highlights the result popup in the GeoView.
      *
@@ -52,14 +51,12 @@ class IdentifyResultViewModel : ViewModel() {
     fun processIdentifyLayerResult(
         identifyLayerResult: IdentifyLayerResult
     ) {
-        if (identifyLayerResult.popups.size > 0) {
-            _identifyLayerResult.value = identifyLayerResult
-            _showIdentifiedPopupAttributesEvent.raiseEvent()
-            highlightFeatureInFeatureLayer(
-                identifyLayerResult.layerContent,
-                identifyLayerResult.popups[0].geoElement
-            )
-        }
+        _identifyLayerResult.value = identifyLayerResult
+        _showIdentifiedPopupAttributesEvent.raiseEvent()
+        highlightFeatureInFeatureLayer(
+            identifyLayerResult.layerContent,
+            identifyLayerResult.popups[0].geoElement
+        )
     }
 
     /**

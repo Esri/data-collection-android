@@ -237,8 +237,11 @@ class DataCollectionFragment : Fragment() {
             identifyLayerResultsFuture.addDoneListener {
                 try {
                     val identifyLayerResult = identifyLayerResultsFuture.get()
-                    popupViewModel.processIdentifyLayerResult(identifyLayerResult)
-                    identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
+
+                    if (identifyLayerResult.popups.size > 0) {
+                        popupViewModel.setPopup(identifyLayerResult.popups[0])
+                        identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
+                    }
                 } catch (e: Exception) {
                     Logger.i("Error identifying results ${e.message}")
                 }
@@ -253,7 +256,7 @@ class DataCollectionFragment : Fragment() {
     private fun resetIdentifyResult() {
         mapViewModel.identifiableLayer?.clearSelection()
         identifyResultViewModel.resetIdentifyLayerResult()
-        popupViewModel.resetIdentifiedPopup()
+        popupViewModel.clearPopup()
     }
 
     override fun onPause() {

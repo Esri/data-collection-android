@@ -12,47 +12,60 @@ import com.esri.arcgisruntime.data.FeatureTable
 import com.esri.arcgisruntime.data.ServiceFeatureTable
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupManager
-import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 
 /**
- * The view model for PopupView, that is responsible for maintaining the PopupView
- * editMode state for orientation changes and for performing async operations.
+ * The view model that represents a Popup. It supports:
+ *
+ * <ul>
+ * <li>Viewing a GeoElement's attributes
+ * <li>Editing a GeoElement's attributes as well as saving
+ * </ul>
+ *
+ * A PopupViewModel can be bound to a PopupView for visualisation of the Popup GeoElement's
+ * attributes and editing experience.
  */
 class PopupViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _identifiedPopup = MutableLiveData<Popup>()
-    val identifiedPopup: LiveData<Popup> = _identifiedPopup
+    private val _popup = MutableLiveData<Popup>()
+    // The Popup whose fields are viewed and edited in the PopupView
+    val popup: LiveData<Popup> = _popup
 
     private val _popupManager = MutableLiveData<PopupManager>()
+    // The manager for the Popup responsible for viewing and editing of the Popup
     val popupManager: LiveData<PopupManager> = _popupManager
 
     private val _isPopupInEditMode = MutableLiveData<Boolean>()
+    // Depicts whether the PopupManager is currently in editing mode
+    // When in edit mode the user can edit the values of fields of the Popup
     val isPopupInEditMode: LiveData<Boolean> = _isPopupInEditMode
 
     private val _showSavePopupErrorEvent = MutableLiveData<Event<String>>()
+    // This event is raised when an error is encountered while trying to save edits on a popup.
+    // It passes the exception message to all the observers in the observeEvent() method.
     val showSavePopupErrorEvent: LiveData<Event<String>> = _showSavePopupErrorEvent
 
-    private val _toggleSavingPopupProgressBarEvent = MutableLiveData<Event<Boolean>>()
-    val toggleSavingPopupProgressBarEvent: LiveData<Event<Boolean>> = _toggleSavingPopupProgressBarEvent
+    private val _showSavingProgressEvent = MutableLiveData<Event<Boolean>>()
+    // This event is raised when the save operation begins/ends.
+    // It passes true to all the observers in the observeEvent() method when the save operation
+    // is initiated and false when it ends.
+    val showSavingProgressEvent: LiveData<Event<Boolean>> = _showSavingProgressEvent
 
     private val _confirmCancelPopupEditingEvent = MutableLiveData<Event<Unit>>()
+    // This event is raised when the user cancels the edit mode on the Popup.
+    // It is used for showing confirmation dialog to the user, before calling cancelEditing()
     val confirmCancelPopupEditingEvent: LiveData<Event<Unit>> = _confirmCancelPopupEditingEvent
 
     /**
-     * Updates identifiedPopup property to set the popup field values being displayed in
+     * Updates popup property to set the popup field values being displayed in
      * the bottom sheet. Creates PopupManager for PopupView to perform edit operations.
      *
-     * @param identifyLayerResult
+     * @param popup
      */
-    fun processIdentifyLayerResult(
-        identifyLayerResult: IdentifyLayerResult
-    ) {
-        if (identifyLayerResult.popups.size > 0) {
-            _identifiedPopup.value = identifyLayerResult.popups[0]
-            _popupManager.value = PopupManager(getApplication(), _identifiedPopup.value)
-        }
+    fun setPopup(popup: Popup) {
+        _popup.value = popup
+        _popupManager.value = PopupManager(getApplication(), _popup.value)
     }
 
     /**
@@ -63,10 +76,10 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Resets the result popup of the identify operation
+     * Clear the popup
      */
-    fun resetIdentifiedPopup() {
-        _identifiedPopup.value = null
+    fun clearPopup() {
+        _popup.value = null
     }
 
     /**
@@ -80,18 +93,19 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Raises ConfirmCancelPopupEditingEvent that can be observed and used for
      * prompting user with confirmation dialog to make sure the user wants to cancel edits.
-     * To be followed by cancelEditing() if the user respond is positive.
+     * To be followed by cancelEditing() if the user response is positive.
      */
-    fun confirmAndCancelEditing() {
+    fun confirmCancelEditing() {
         _confirmCancelPopupEditingEvent.raiseEvent()
     }
 
     /**
-     * Saves the popup by applying changes to the feature service.
+     * Saves Popup edits by applying changes to the feature service associated with a Popup's
+     * feature.
      */
-    fun savePopup() {
+    fun savePopupEdits() {
         // show the Progress bar informing user that save operation is in progress
-        _toggleSavingPopupProgressBarEvent.raiseEvent(true)
+        _showSavingProgressEvent.raiseEvent(true)
         _popupManager.value?.let { popupManager ->
             // Call finishEditingAsync() to apply edit changes locally and end the popup manager
             // editing session
@@ -102,7 +116,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                     finishEditingFuture.get()
 
                     // The edits were applied successfully to the local geodatabase,
-                    // push those changes to the ServiceFeatureTable by calling applyEditsAsync()
+                    // push those changes to the feature service by calling applyEditsAsync()
                     val feature: Feature = popupManager.popup.geoElement as Feature
                     val featureTable: FeatureTable = feature.featureTable
                     if (featureTable is ServiceFeatureTable) {
@@ -110,7 +124,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                             featureTable.applyEditsAsync()
                         applyEditsFuture.addDoneListener {
                             // dismiss the Progress bar
-                            _toggleSavingPopupProgressBarEvent.raiseEvent(false)
+                            _showSavingProgressEvent.raiseEvent(false)
                             // dismiss edit mode
                             _isPopupInEditMode.value = false
                             try {
@@ -128,6 +142,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                                 }
 
                             } catch (exception: Exception) {
+                                // show the error message to the user
                                 exception.message?.let { exceptionMessage ->
                                     _showSavePopupErrorEvent.raiseEvent(exceptionMessage)
                                 }
@@ -135,6 +150,9 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                 } catch (exception: Exception) {
+                    // dismiss the Progress bar
+                    _showSavingProgressEvent.raiseEvent(false)
+                    // show the error message to the user
                     exception.message?.let { exceptionMessage ->
                         _showSavePopupErrorEvent.raiseEvent(exceptionMessage)
                     }
