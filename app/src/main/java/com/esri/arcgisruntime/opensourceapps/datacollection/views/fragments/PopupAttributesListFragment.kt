@@ -56,10 +56,6 @@ class PopupAttributesListFragment : Fragment() {
         binding.popupViewModel = popupViewModel
         binding.lifecycleOwner = this
 
-        popupViewModel.isPopupInEditMode.observe(viewLifecycleOwner, Observer {
-            popupView.setEditMode(it)
-        })
-
         popupViewModel.showSavingProgressEvent.observeEvent(viewLifecycleOwner) { isShowProgressBar ->
             if (isShowProgressBar) {
                 progressBarLayout.visibility = View.VISIBLE

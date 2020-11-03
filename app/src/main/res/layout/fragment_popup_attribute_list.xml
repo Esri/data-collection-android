@@ -175,7 +175,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/guideline"
                     app:popup="@{popupViewModel.popup}"
-                    app:popupManager="@{popupViewModel.popupManager}">
+                    app:popupManager="@{popupViewModel.popupManager}"
+                    app:editMode="@{popupViewModel.isPopupInEditMode()}">
             </com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
