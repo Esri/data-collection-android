@@ -39,6 +39,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
+import com.esri.arcgisruntime.data.CodedValue
 import com.esri.arcgisruntime.data.CodedValueDomain
 import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.mapping.popup.Popup
@@ -220,36 +221,59 @@ class PopupView : FrameLayout {
         }
 
         /**
-         *
+         * Sets up spinner for PopupFields that have a CodedValueDomain.
          */
         private fun setUpSpinner(codedValueDomain : CodedValueDomain, popupField: PopupField) {
 
             val codedValuesNames = mutableListOf<String>()
-            for (codedvalue in codedValueDomain.codedValues) {
-                val int = 0
-                Log.d("PopupView", "codedValueDomain : " + codedValueDomain.codedValues[int+1].name + (int+1))
-                codedValuesNames.add(codedvalue.name)
+            for (codedValue in codedValueDomain.codedValues) {
+                codedValuesNames.add(codedValue.name)
             }
-            popupFieldCvdValues.adapter = ArrayAdapter(binding.root.context, android.R.layout.simple_spinner_dropdown_item, codedValuesNames)
-            val selectionPosition = popupManager.getFieldValue(popupField) as String
-//            popupFieldCvdValues.setSelection(selectionPosition.toInt() - 1)
-            popupFieldCvdValues.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    TODO("Not yet implemented")
-                }
+            popupFieldCvdValues.adapter = ArrayAdapter(
+                binding.root.context,
+                android.R.layout.simple_spinner_dropdown_item,
+                codedValuesNames
+            )
+            val codedValuePosition = getCodedValuePosition(
+                popupManager.getFieldValue(popupField),
+                codedValueDomain.codedValues
+            )
+            // set the PopupField value as selected in the spinner
+            popupFieldCvdValues.setSelection(codedValuePosition)
+            popupFieldCvdValues.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        TODO("Not yet implemented")
+                    }
 
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    popupManager.updateValue(
-                        codedValueDomain.codedValues[position].code,
-                        popupField
-                    )
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        popupManager.updateValue(
+                            codedValueDomain.codedValues[position].code,
+                            popupField
+                        )
+                    }
+                }
+        }
+
+        /**
+         * Returns the position of the given code in list of coded values. If no match found,
+         * then the first value in the list is returned.
+         *
+         * @param code the code whose position is to be determined in the coded values list
+         * @param codedValues the list of coded values
+         * */
+        private fun getCodedValuePosition(code: Any, codedValues: List<CodedValue>): Int {
+            for ((index, codedValue) in codedValues.withIndex()) {
+                if (codedValue.code == code) {
+                    return index
                 }
             }
+            return 0
         }
 
         /**
