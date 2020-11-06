@@ -142,14 +142,14 @@ class DataCollectionFragment : Fragment() {
             drawer_layout.closeDrawer(GravityCompat.START)
         }
 
-        identifyResultViewModel.showPopupAttributeListEvent.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showPopupFragmentEvent.observeEvent(viewLifecycleOwner) {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
-        identifyResultViewModel.showIdentifiedPopupAttributesEvent.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showIdentifyResultFragmentEvent.observeEvent(viewLifecycleOwner) {
             // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
             // bottomsheet containing popupAttributeListFragment.
             if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
