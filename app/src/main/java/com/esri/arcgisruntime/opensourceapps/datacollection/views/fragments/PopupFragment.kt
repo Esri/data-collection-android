@@ -24,18 +24,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
-import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupAttributeListBinding
+import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
-import kotlinx.android.synthetic.main.fragment_popup_attribute_list.*
+import kotlinx.android.synthetic.main.fragment_popup.*
 
 /**
  * Responsible for displaying PopupAttribute list.
  */
-class PopupAttributesListFragment : Fragment() {
+class PopupFragment : Fragment() {
 
     private val popupViewModel: PopupViewModel by activityViewModels()
 
@@ -43,14 +42,16 @@ class PopupAttributesListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentPopupAttributeListBinding = DataBindingUtil.inflate(
+        val binding: FragmentPopupBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_popup_attribute_list,
+            R.layout.fragment_popup,
             container,
             false
         )
 
-        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels()
+        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
+            IdentifyResultViewModel.Factory(popupViewModel)
+        }
 
         binding.identifyResultViewModel = identifyResultViewModel
         binding.popupViewModel = popupViewModel
@@ -95,7 +96,7 @@ class PopupAttributesListFragment : Fragment() {
     }
 
     /**
-     * Shows error message to the use in a dialog.
+     * Shows error message to the user in a dialog.
      */
     private fun showAlertDialog(message: String) {
 

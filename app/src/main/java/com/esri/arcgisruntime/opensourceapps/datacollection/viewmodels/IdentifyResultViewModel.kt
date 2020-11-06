@@ -19,6 +19,7 @@ package com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.LayerContent
@@ -32,7 +33,7 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
  * identify layer operation on MapView, highlighting the selected feature and displaying the values
  * of the display fields of result Popup in the bottom sheet.
  */
-class IdentifyResultViewModel : ViewModel() {
+class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() {
 
     private val _showIdentifiedPopupAttributesEvent = MutableLiveData<Event<Unit>>()
     val showIdentifiedPopupAttributesEvent: LiveData<Event<Unit>> = _showIdentifiedPopupAttributesEvent
@@ -44,6 +45,16 @@ class IdentifyResultViewModel : ViewModel() {
     val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
 
     /**
+     * Factory class to help create an instance of [IdentifyResultViewModel] with a [PopupViewModel].
+     */
+    class Factory(private val popupViewModel: PopupViewModel) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return IdentifyResultViewModel(popupViewModel) as T
+        }
+    }
+
+    /**
      * Highlights the result popup in the GeoView.
      *
      * @param identifyLayerResult
@@ -51,12 +62,15 @@ class IdentifyResultViewModel : ViewModel() {
     fun processIdentifyLayerResult(
         identifyLayerResult: IdentifyLayerResult
     ) {
-        _identifyLayerResult.value = identifyLayerResult
-        _showIdentifiedPopupAttributesEvent.raiseEvent()
-        highlightFeatureInFeatureLayer(
-            identifyLayerResult.layerContent,
-            identifyLayerResult.popups[0].geoElement
-        )
+        if (identifyLayerResult.popups.size > 0) {
+            _identifyLayerResult.value = identifyLayerResult
+            popupViewModel.setPopup(identifyLayerResult.popups[0])
+            _showIdentifiedPopupAttributesEvent.raiseEvent()
+            highlightFeatureInFeatureLayer(
+                identifyLayerResult.layerContent,
+                identifyLayerResult.popups[0].geoElement
+            )
+        }
     }
 
     /**

@@ -110,7 +110,7 @@ class PopupView : FrameLayout {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val popupField: PopupField = getItem(position)
-            holder.updateViewMode(popupField)
+            holder.updateView(popupField)
 
             holder.bind(popupField)
         }
@@ -166,7 +166,7 @@ class PopupView : FrameLayout {
          * Toggles the view for popup field value from edittext to textview and vice-versa, given the
          * edit mode of the popupView.
          */
-        fun updateViewMode(popupField: PopupField) {
+        fun updateView(popupField: PopupField) {
             if (isEditMode) {
                 popupFieldEditValue.visibility = View.VISIBLE
                 popupFieldValue.visibility = View.GONE

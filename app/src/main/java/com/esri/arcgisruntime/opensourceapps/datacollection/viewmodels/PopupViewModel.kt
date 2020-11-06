@@ -80,6 +80,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun clearPopup() {
         _popup.value = null
+        _popupManager.value = null
     }
 
     /**

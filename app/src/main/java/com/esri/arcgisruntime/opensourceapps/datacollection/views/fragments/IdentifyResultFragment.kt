@@ -45,8 +45,10 @@ class IdentifyResultFragment : Fragment() {
             false
         )
 
-        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels()
         val popupViewModel: PopupViewModel by activityViewModels()
+        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
+            IdentifyResultViewModel.Factory(popupViewModel)
+        }
 
         binding.identifyResultViewModel = identifyResultViewModel
         binding.popupViewModel = popupViewModel

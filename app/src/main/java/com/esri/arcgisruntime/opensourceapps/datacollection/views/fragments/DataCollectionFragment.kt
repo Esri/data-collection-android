@@ -55,20 +55,23 @@ import kotlin.math.roundToInt
  */
 class DataCollectionFragment : Fragment() {
 
-    // identifyResultViewModel is shared with IdentifyResultFragment, thus we use by activityViewModels()
-    private val identifyResultViewModel: IdentifyResultViewModel by activityViewModels()
-
     // mapViewModel and dataCollectionViewModel are shared with NavigationDrawerFragment, thus we
     // use by activityViewModels()
     private val mapViewModel: MapViewModel by activityViewModels()
-
-    private val popupViewModel: PopupViewModel by activityViewModels()
 
     private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels {
         DataCollectionViewModel.Factory(
             requireActivity().application,
             mapViewModel
         )
+    }
+
+    // popupViewModel and identifyResultViewModel is shared with IdentifyResultFragment, thus we
+    // use by activityViewModels()
+    private val popupViewModel: PopupViewModel by activityViewModels()
+
+    private val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
+        IdentifyResultViewModel.Factory(popupViewModel)
     }
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -238,10 +241,7 @@ class DataCollectionFragment : Fragment() {
                 try {
                     val identifyLayerResult = identifyLayerResultsFuture.get()
 
-                    if (identifyLayerResult.popups.size > 0) {
-                        popupViewModel.setPopup(identifyLayerResult.popups[0])
-                        identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
-                    }
+                    identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
                 } catch (e: Exception) {
                     Logger.i("Error identifying results ${e.message}")
                 }
