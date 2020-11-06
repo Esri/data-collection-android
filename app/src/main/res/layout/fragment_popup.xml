@@ -74,7 +74,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-
+            <!--app:imageBitmap is set via BindingAdapter -->
+            <!--setImageBitmap(imageView: ImageView, identifiedPopup: LiveData<Popup>)-->
             <ImageView
                     android:id="@+id/symbol"
                     android:layout_width="wrap_content"

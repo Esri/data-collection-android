@@ -55,7 +55,12 @@ class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() 
     }
 
     /**
-     * Highlights the result popup in the GeoView.
+     * <ul>
+     * <li>Sets the identifyLayerResult instance on the viewModel
+     * <li>Sets the first popup returned by identifyLayerResult on PopupViewModel
+     * <li>Raises the event to show the popup's attribute in PopupFragment
+     * <li>Highlights the result popup in the GeoView
+     * </ul>
      *
      * @param identifyLayerResult
      */
