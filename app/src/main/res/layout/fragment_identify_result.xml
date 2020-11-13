@@ -31,7 +31,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="84dp"
-            android:onClick="@{() -> identifyResultViewModel.showPopupAttributeList()}">
+            android:onClick="@{() -> identifyResultViewModel.showPopup()}">
 
         <ImageView
                 android:id="@+id/symbol"

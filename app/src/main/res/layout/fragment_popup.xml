@@ -69,7 +69,7 @@
                 android:id="@+id/controlLayout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:onClick="@{() -> identifyResultViewModel.showIdentifiedPopupAttributes()}"
+                android:onClick="@{() -> identifyResultViewModel.showIdentifyResult()}"
                 app:layout_constraintBottom_toTopOf="@id/guideline"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
