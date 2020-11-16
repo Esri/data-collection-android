@@ -32,7 +32,7 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupView
 import kotlinx.android.synthetic.main.fragment_popup.*
 
 /**
- * Responsible for displaying PopupAttribute list.
+ * Responsible for displaying a Popup.
  */
 class PopupFragment : Fragment() {
 
@@ -49,11 +49,6 @@ class PopupFragment : Fragment() {
             false
         )
 
-        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
-            IdentifyResultViewModel.Factory(popupViewModel)
-        }
-
-        binding.identifyResultViewModel = identifyResultViewModel
         binding.popupViewModel = popupViewModel
         binding.lifecycleOwner = this
 

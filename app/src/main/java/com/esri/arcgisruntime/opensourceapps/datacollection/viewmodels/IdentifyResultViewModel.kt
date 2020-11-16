@@ -79,10 +79,14 @@ class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() 
     }
 
     /**
-     * Resets the result of the identify operation
+     * <ul>
+     * <li>Resets the result of the identify operation
+     * <li>Clears the popup set on PopupViewModel
+     * </ul>
      */
     fun resetIdentifyLayerResult() {
         _identifyLayerResult.value = null
+        popupViewModel.clearPopup()
     }
 
     /**
@@ -90,13 +94,6 @@ class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() 
      */
     fun showPopup() {
         _showPopupEvent.raiseEvent()
-    }
-
-    /**
-     * Raises an event to show the identify result
-     */
-    fun showIdentifyResult() {
-        _showIdentifyResultEvent.raiseEvent()
     }
 
     /**

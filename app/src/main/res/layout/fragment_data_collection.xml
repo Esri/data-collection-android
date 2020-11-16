@@ -70,6 +70,7 @@
                         app:behavior_fitToContents="true"
                         app:behavior_draggable="false"
                         app:behavior_hideable="true"
+                        android:clickable="true"
                         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                     <fragment

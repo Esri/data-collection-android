@@ -256,7 +256,6 @@ class DataCollectionFragment : Fragment() {
     private fun resetIdentifyResult() {
         mapViewModel.identifiableLayer?.clearSelection()
         identifyResultViewModel.resetIdentifyLayerResult()
-        popupViewModel.clearPopup()
     }
 
     override fun onPause() {
