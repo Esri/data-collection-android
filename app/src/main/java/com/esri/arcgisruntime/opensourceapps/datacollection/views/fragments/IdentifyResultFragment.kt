@@ -26,14 +26,13 @@ import androidx.fragment.app.activityViewModels
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentIdentifyResultBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
+import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 
 /**
  * Responsible for displaying properties of the resulting GeoElement of an identify operation in
  * the bottom sheet.
  */
 class IdentifyResultFragment : Fragment() {
-
-    private val viewModel: IdentifyResultViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +45,13 @@ class IdentifyResultFragment : Fragment() {
             false
         )
 
-        binding.identifyResultViewModel = viewModel
+        val popupViewModel: PopupViewModel by activityViewModels()
+        val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
+            IdentifyResultViewModel.Factory(popupViewModel)
+        }
+
+        binding.identifyResultViewModel = identifyResultViewModel
+        binding.popupViewModel = popupViewModel
         binding.lifecycleOwner = this
 
         return binding.root

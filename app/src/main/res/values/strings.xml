@@ -10,4 +10,9 @@
 
     <string name="enter_valid_oauth_config">Please enter valid OAuth config in app_settings.xml</string>
     <string name="profile">Profile</string>
+    <string name="edit">Edit</string>
+    <string name="ok">@android:string/ok</string>
+    <string name="cancel"> @android:string/cancel</string>
+
+    <string name="saving_record">Saving Record</string>
 </resources>

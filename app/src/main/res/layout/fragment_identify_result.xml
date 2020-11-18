@@ -22,19 +22,22 @@
         <variable
                 name="identifyResultViewModel"
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel" />
+        <variable
+                name="popupViewModel"
+                type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel"/>
     </data>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="84dp"
-            android:onClick="@{() -> identifyResultViewModel.showPopupAttributeList()}">
+            android:onClick="@{() -> identifyResultViewModel.showPopup()}">
 
         <ImageView
                 android:id="@+id/symbol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:imageBitmap="@{identifyResultViewModel.identifiedPopup}"
+                app:imageBitmap="@{popupViewModel.popup}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.055"
@@ -46,7 +49,7 @@
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{identifyResultViewModel.identifiedPopup.title}"
+                android:text="@{popupViewModel.popup.title}"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -61,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 bind:popupfieldindex="@{0}"
-                android:text="@{identifyResultViewModel.identifiedPopup}"
+                android:text="@{popupViewModel.popup}"
                 android:textAlignment="viewStart"
                 android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@id/symbol"

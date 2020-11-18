@@ -70,6 +70,7 @@
                         app:behavior_peekHeight="80dp"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="50dp"
+                        android:clickable="true"
                         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                     <fragment
