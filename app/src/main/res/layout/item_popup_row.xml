@@ -20,32 +20,56 @@
 
     <data>
         <variable
-                name="popupAttribute"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView.PopupAttribute" />
+                name="popupManager"
+                type="com.esri.arcgisruntime.mapping.popup.PopupManager"/>
+        <variable
+                name="popupField"
+                type="com.esri.arcgisruntime.mapping.popup.PopupField" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="73dp">
 
         <TextView
                 android:id="@+id/popupField"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="50dp"
-                android:text="@{popupAttribute.field}"
+                android:layout_marginStart="28dp"
+                android:layout_marginTop="16dp"
+                android:text="@{popupField.label}"
+                android:textSize="14dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+                android:id="@+id/popupFieldEditValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ems="12"
+                android:textSize="18dp"
+                android:text="@{popupManager.getFormattedValue(popupField)}"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.09"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popupField"
+                app:layout_constraintVertical_bias="0.975"/>
 
         <TextView
                 android:id="@+id/popupFieldValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="52dp"
-                android:text="@{popupAttribute.value}"
+                android:layout_marginTop="8dp"
+                android:text="@{popupManager.getFormattedValue(popupField)}"
+                android:textSize="18dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintHorizontal_bias="0.09"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popupField"
+                app:layout_constraintVertical_bias="0.975" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

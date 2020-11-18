@@ -17,21 +17,29 @@
 package com.esri.arcgisruntime.opensourceapps.datacollection.views.popup
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.esri.arcgisruntime.ArcGISRuntimeException
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
 import com.esri.arcgisruntime.opensourceapps.datacollection.BR
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
+import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
 
 /**
@@ -40,12 +48,10 @@ import kotlinx.android.synthetic.main.layout_popupview.view.*
 class PopupView : FrameLayout {
 
     private val popupAttributeListAdapter by lazy { PopupAttributeListAdapter() }
+    private var isEditMode: Boolean = false
 
-    var popup: Popup? = null
-        set(value) {
-            field = value
-            popupAttributeListAdapter.submitList(getPopupAttributeList())
-        }
+    lateinit var popupManager: PopupManager
+    lateinit var popup: Popup
 
     /**
      * Constructor used when instantiating this View directly to attach it to another view programmatically.
@@ -71,35 +77,25 @@ class PopupView : FrameLayout {
     }
 
     /**
-     * Iterates over all the display fields of the popup to get their values and adds them to the
-     * list of PopupAttributes.
+     * Enables/Disables edit mode on the PopupView.
      */
-    private fun getPopupAttributeList(): ArrayList<PopupAttribute> {
-        val popupManager = PopupManager(context, popup)
-        val fields: List<PopupField> = popupManager.displayedFields
-        val popupDisplayFieldsWithValues: ArrayList<PopupAttribute> = ArrayList()
-        for (field in fields) {
-            popupDisplayFieldsWithValues.add(
-                PopupAttribute(
-                    field.label,
-                    popupManager.getFormattedValue(field)
-                )
-            )
+    fun setEditMode(isEnabled: Boolean) {
+        isEditMode = isEnabled
+        if (isEnabled) {
+            popupAttributeListAdapter.submitList(popupManager.editableFields)
+            popupManager.startEditing()
+        } else {
+            popupAttributeListAdapter.submitList(popupManager.displayedFields)
         }
-        return popupDisplayFieldsWithValues
+        popupAttributeListAdapter.notifyDataSetChanged()
     }
-
-    /**
-     * Represents an object comprising of Popup display field and its value.
-     */
-    data class PopupAttribute(val field: String, val value: String)
 
     /**
      * Adapter used by PopupView to display a list of PopupAttributes in a
      * recyclerView.
      */
     private inner class PopupAttributeListAdapter :
-        ListAdapter<PopupAttribute, ViewHolder>(DiffCallback()) {
+        ListAdapter<PopupField, ViewHolder>(DiffCallback()) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val inflater = LayoutInflater.from(parent.context)
@@ -112,42 +108,93 @@ class PopupView : FrameLayout {
             return ViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(getItem(position))
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val popupField: PopupField = getItem(position)
+            holder.updateView(popupField)
+
+            holder.bind(popupField)
+        }
     }
 
     /**
      * Callback for calculating the diff between two non-null items in a list.
      */
-    private class DiffCallback : DiffUtil.ItemCallback<PopupAttribute>() {
+    private class DiffCallback : DiffUtil.ItemCallback<PopupField>() {
 
         override fun areItemsTheSame(
-            oldItem: PopupAttribute,
-            newItem: PopupAttribute
+            oldItem: PopupField,
+            newItem: PopupField
         ): Boolean {
             return oldItem == newItem
         }
 
         override fun areContentsTheSame(
-            oldItem: PopupAttribute,
-            newItem: PopupAttribute
+            oldItem: PopupField,
+            newItem: PopupField
         ): Boolean {
-            return oldItem.field == newItem.field && oldItem.value == newItem.value
+            return oldItem.fieldName == newItem.fieldName
         }
     }
 
     /**
      * The PopupAttributeListAdapter ViewHolder.
      */
-    private class ViewHolder(private val binding: ViewDataBinding) :
+    private inner class ViewHolder(private val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        val popupFieldLabel: TextView by lazy {
+            binding.root.popupField
+        }
+
+        val popupFieldValue: TextView by lazy {
+            binding.root.popupFieldValue
+        }
+
+        val popupFieldEditValue: EditText by lazy {
+            binding.root.popupFieldEditValue
+        }
+
         fun bind(
-            popupAttribute: PopupAttribute
+            popupField: PopupField
         ) {
-            binding.setVariable(BR.popupAttribute, popupAttribute)
+            binding.setVariable(BR.popupField, popupField)
+            binding.setVariable(BR.popupManager, popupManager)
             binding.executePendingBindings()
         }
-    }
 
+        /**
+         * Toggles the view for popup field value from edittext to textview and vice-versa, given the
+         * edit mode of the popupView.
+         */
+        fun updateView(popupField: PopupField) {
+            if (isEditMode) {
+                popupFieldEditValue.visibility = View.VISIBLE
+                popupFieldValue.visibility = View.GONE
+                //save original colors
+                val oldColors: ColorStateList = popupFieldLabel.textColors
+                // here we assign and hold the values of the editable fields, entered by the user
+                // in popupAttribute.tempValue
+                popupFieldEditValue.doAfterTextChanged {
+                    if (popupFieldEditValue.hasFocus()) {
+                        val validationError: ArcGISRuntimeException? = popupManager.updateValue(
+                            popupFieldEditValue.text.toString(),
+                            popupField
+                        )
+
+                        if (validationError != null) {
+                            val fieldLabelWithValidationError = popupField.label + ": " + validationError.message
+                            popupFieldLabel.text = fieldLabelWithValidationError
+                            popupFieldLabel.setTextColor(Color.RED)
+                        } else {
+                            popupFieldLabel.text = popupField.label
+                            popupFieldLabel.setTextColor(oldColors)
+                        }
+                    }
+                }
+            } else {
+                popupFieldEditValue.visibility = View.GONE
+                popupFieldValue.visibility = View.VISIBLE
+            }
+        }
+    }
 }

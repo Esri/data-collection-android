@@ -27,13 +27,14 @@
             android:label="fragment_identify_result"
             tools:layout="@layout/fragment_identify_result" >
         <action
-                android:id="@+id/action_identifyResultFragment_to_popupAttributeListFragment"
-                app:destination="@id/popupAttributeListFragment" />
+                android:id="@+id/action_identifyResultFragment_to_popupFragment"
+                app:destination="@id/popupFragment"
+                app:popUpTo="@id/identifyResultFragment" />
     </fragment>
     <fragment
-            android:id="@+id/popupAttributeListFragment"
-            android:name="com.esri.arcgisruntime.opensourceapps.datacollection.views.fragments.PopupAttributesListFragment"
-            android:label="fragment_popup_attribute_list"
-            tools:layout="@layout/fragment_popup_attribute_list" />
+            android:id="@+id/popupFragment"
+            android:name="com.esri.arcgisruntime.opensourceapps.datacollection.views.fragments.PopupFragment"
+            android:label="fragment_popup"
+            tools:layout="@layout/fragment_popup" />
 
 </navigation>

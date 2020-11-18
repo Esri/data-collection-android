@@ -41,6 +41,7 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
+import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -54,9 +55,6 @@ import kotlin.math.roundToInt
  */
 class DataCollectionFragment : Fragment() {
 
-    // identifyResultViewModel is shared with IdentifyResultFragment, thus we use by activityViewModels()
-    private val identifyResultViewModel: IdentifyResultViewModel by activityViewModels()
-
     // mapViewModel and dataCollectionViewModel are shared with NavigationDrawerFragment, thus we
     // use by activityViewModels()
     private val mapViewModel: MapViewModel by activityViewModels()
@@ -66,6 +64,14 @@ class DataCollectionFragment : Fragment() {
             requireActivity().application,
             mapViewModel
         )
+    }
+
+    // popupViewModel and identifyResultViewModel is shared with IdentifyResultFragment, thus we
+    // use by activityViewModels()
+    private val popupViewModel: PopupViewModel by activityViewModels()
+
+    private val identifyResultViewModel: IdentifyResultViewModel by activityViewModels {
+        IdentifyResultViewModel.Factory(popupViewModel)
     }
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -136,14 +142,19 @@ class DataCollectionFragment : Fragment() {
             drawer_layout.closeDrawer(GravityCompat.START)
         }
 
-        identifyResultViewModel.showPopupAttributeListEvent.observeEvent(viewLifecycleOwner) {
-            bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
+        identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
+            bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
-        identifyResultViewModel.showIdentifiedPopupAttributeEvent.observeEvent(viewLifecycleOwner) {
+        identifyResultViewModel.showIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
+            // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
+            // bottomsheet containing popupAttributeListFragment.
+            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
+                bottomSheetNavController.popBackStack()
+            }
             // IdentifyResultFragment only shows a few selected popup attributes, so we
             // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
@@ -170,8 +181,9 @@ class DataCollectionFragment : Fragment() {
             when (destination.id) {
                 R.id.identifyResultFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
+                    popupViewModel.cancelEditing()
                 }
-                R.id.popupAttributeListFragment -> {
+                R.id.popupFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
             }
@@ -186,7 +198,7 @@ class DataCollectionFragment : Fragment() {
             // navigated to it. If that is the case we navigate to IdentifyResultFragment, else we
             // have already navigated to IdentifyResultFragment in the bottomsheet and
             // show the drawer layout.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
+            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
                 requireActivity().onBackPressed()
             } else {
                 drawer_layout.openDrawer(GravityCompat.START)
@@ -228,6 +240,7 @@ class DataCollectionFragment : Fragment() {
             identifyLayerResultsFuture.addDoneListener {
                 try {
                     val identifyLayerResult = identifyLayerResultsFuture.get()
+
                     identifyResultViewModel.processIdentifyLayerResult(identifyLayerResult)
                 } catch (e: Exception) {
                     Logger.i("Error identifying results ${e.message}")
@@ -242,7 +255,7 @@ class DataCollectionFragment : Fragment() {
      */
     private fun resetIdentifyResult() {
         mapViewModel.identifiableLayer?.clearSelection()
-        identifyResultViewModel.resetIdentifyResult()
+        identifyResultViewModel.resetIdentifyLayerResult()
     }
 
     override fun onPause() {

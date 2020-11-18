@@ -19,38 +19,48 @@ package com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.LayerContent
 import com.esri.arcgisruntime.mapping.GeoElement
-import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
 
 /**
  * The view model for IdentifyResultFragment, that is responsible for processing the result of
- * identify layer operation on MapView and displaying the values of the display fields of result
- * Popup in the bottom sheet.
+ * identify layer operation on MapView, highlighting the selected feature and displaying the values
+ * of the display fields of result Popup in the bottom sheet.
  */
-class IdentifyResultViewModel : ViewModel() {
+class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() {
 
-    private val _showIdentifiedPopupAttributeEvent = MutableLiveData<Event<Unit>>()
-    val showIdentifiedPopupAttributeEvent: LiveData<Event<Unit>> = _showIdentifiedPopupAttributeEvent
+    private val _showIdentifyResultEvent = MutableLiveData<Event<Unit>>()
+    val showIdentifyResultEvent: LiveData<Event<Unit>> = _showIdentifyResultEvent
 
     private val _identifyLayerResult = MutableLiveData<IdentifyLayerResult>()
     val identifyLayerResult: LiveData<IdentifyLayerResult> = _identifyLayerResult
 
-    private val _identifiedPopup = MutableLiveData<Popup>()
-    val identifiedPopup: LiveData<Popup> = _identifiedPopup
-
-    private val _showPopupAttributeListEvent = MutableLiveData<Event<Unit>>()
-    val showPopupAttributeListEvent: LiveData<Event<Unit>> = _showPopupAttributeListEvent
+    private val _showPopupEvent = MutableLiveData<Event<Unit>>()
+    val showPopupEvent: LiveData<Event<Unit>> = _showPopupEvent
 
     /**
-     * Highlights the result popup in the GeoView.
-     * Updates identifiedPopup property to set the popup field values being displayed in
-     * the bottom sheet.
+     * Factory class to help create an instance of [IdentifyResultViewModel] with a [PopupViewModel].
+     */
+    class Factory(private val popupViewModel: PopupViewModel) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return IdentifyResultViewModel(popupViewModel) as T
+        }
+    }
+
+    /**
+     * <ul>
+     * <li>Sets the identifyLayerResult instance on the identifyResultViewModel
+     * <li>Sets the first popup returned by identifyLayerResult on PopupViewModel
+     * <li>Raises an event to show the identify result
+     * <li>Highlights the result popup in the GeoView
+     * </ul>
      *
      * @param identifyLayerResult
      */
@@ -59,8 +69,8 @@ class IdentifyResultViewModel : ViewModel() {
     ) {
         if (identifyLayerResult.popups.size > 0) {
             _identifyLayerResult.value = identifyLayerResult
-            _identifiedPopup.value = identifyLayerResult.popups[0]
-            _showIdentifiedPopupAttributeEvent.raiseEvent()
+            popupViewModel.setPopup(identifyLayerResult.popups[0])
+            _showIdentifyResultEvent.raiseEvent()
             highlightFeatureInFeatureLayer(
                 identifyLayerResult.layerContent,
                 identifyLayerResult.popups[0].geoElement
@@ -69,18 +79,21 @@ class IdentifyResultViewModel : ViewModel() {
     }
 
     /**
-     * Resets the result of the identify operation
+     * <ul>
+     * <li>Resets the result of the identify operation
+     * <li>Clears the popup set on PopupViewModel
+     * </ul>
      */
-    fun resetIdentifyResult() {
+    fun resetIdentifyLayerResult() {
         _identifyLayerResult.value = null
-        _identifiedPopup.value = null
+        popupViewModel.clearPopup()
     }
 
     /**
-     * Called when user taps on the identify result bottom sheet. Kicks off PopupAttributeListFragment
+     * Raises an event to show the Popup
      */
-    fun showPopupAttributeList() {
-        _showPopupAttributeListEvent.raiseEvent()
+    fun showPopup() {
+        _showPopupEvent.raiseEvent()
     }
 
     /**
@@ -93,5 +106,4 @@ class IdentifyResultViewModel : ViewModel() {
         val featureLayer: FeatureLayer? = layerContent as? FeatureLayer
         featureLayer?.selectFeature(geoelement as Feature)
     }
-
 }
