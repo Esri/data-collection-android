@@ -196,11 +196,11 @@ class PopupView : FrameLayout {
                     // in popupAttribute.tempValue
                     popupFieldEditValue.doAfterTextChanged {
                         if (popupFieldEditValue.hasFocus()) {
-                            val validationError: ArcGISRuntimeException? = popupManager.updateValue(
-                                popupFieldEditValue.text.toString(),
-                                popupField
-                            )
 
+                            val validationError: ArcGISRuntimeException? = updateValue(
+                                popupField,
+                                popupFieldEditValue.text.toString()
+                            )
                             if (validationError != null) {
                                 val fieldLabelWithValidationError =
                                     popupField.label + ": " + validationError.message
@@ -223,7 +223,7 @@ class PopupView : FrameLayout {
         /**
          * Sets up spinner for PopupFields that have a CodedValueDomain.
          */
-        private fun setUpSpinner(codedValueDomain : CodedValueDomain, popupField: PopupField) {
+        private fun setUpSpinner(codedValueDomain: CodedValueDomain, popupField: PopupField) {
 
             val codedValuesNames = mutableListOf<String>()
             for (codedValue in codedValueDomain.codedValues) {
@@ -261,6 +261,47 @@ class PopupView : FrameLayout {
         }
 
         /**
+         * Updates the value of the specified PopupField to the appropriately cast string value of
+         * the specified value
+         */
+        private fun updateValue(popupField: PopupField, newValue: String): ArcGISRuntimeException? {
+            var error: ArcGISRuntimeException? = null
+            when (popupManager.getFieldType(popupField)) {
+                Field.Type.SHORT -> error =
+                    if (newValue.toShortOrNull() != null) {
+                        popupManager.updateValue(newValue.toShort(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.INTEGER -> error =
+                    if (newValue.toIntOrNull() != null) {
+                        popupManager.updateValue(newValue.toInt(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.FLOAT -> error =
+                    if (newValue.toFloatOrNull() != null) {
+                        popupManager.updateValue(newValue.toFloat(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.DOUBLE -> error =
+                    if (newValue.toDoubleOrNull() != null) {
+                        popupManager.updateValue(newValue.toDouble(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.TEXT -> error = popupManager.updateValue(newValue, popupField)
+
+                else -> Log.i(
+                    "PopupView",
+                    "Unhandled field type: " + popupManager.getFieldType(popupField)
+                )
+            }
+            return error
+        }
+
+        /**
          * Returns the position of the given code in list of coded values. If no match found,
          * then the first value in the list is returned.
          *
@@ -283,7 +324,6 @@ class PopupView : FrameLayout {
             return when (fieldType) {
                 Field.Type.SHORT, Field.Type.INTEGER -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
                 Field.Type.FLOAT, Field.Type.DOUBLE -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-                Field.Type.DATE -> InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_DATE or InputType.TYPE_DATETIME_VARIATION_NORMAL
                 else -> InputType.TYPE_CLASS_TEXT
             }
         }
