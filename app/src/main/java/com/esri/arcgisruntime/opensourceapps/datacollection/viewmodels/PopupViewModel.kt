@@ -71,8 +71,8 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Enables/disables edit mode on the PopupView
      */
-    fun setEditMode(isEnable: Boolean) {
-        _isPopupInEditMode.value = isEnable
+    fun setEditMode(isEnabled: Boolean) {
+        _isPopupInEditMode.value = isEnabled
     }
 
     /**

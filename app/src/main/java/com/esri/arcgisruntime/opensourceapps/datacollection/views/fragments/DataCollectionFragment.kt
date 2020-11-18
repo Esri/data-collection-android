@@ -143,7 +143,7 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
-            bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupAttributeListFragment)
+            bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
             // PopupAttributeListFragment shows all popup attributes, so we
             // show them in expanded(full screen) state of the bottom sheet
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
@@ -152,7 +152,7 @@ class DataCollectionFragment : Fragment() {
         identifyResultViewModel.showIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
             // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
             // bottomsheet containing popupAttributeListFragment.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
+            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
                 bottomSheetNavController.popBackStack()
             }
             // IdentifyResultFragment only shows a few selected popup attributes, so we
@@ -183,7 +183,7 @@ class DataCollectionFragment : Fragment() {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
                     popupViewModel.cancelEditing()
                 }
-                R.id.popupAttributeListFragment -> {
+                R.id.popupFragment -> {
                     toolbar.title = dataCollectionViewModel.portalItemTitle.value
                 }
             }
@@ -198,7 +198,7 @@ class DataCollectionFragment : Fragment() {
             // navigated to it. If that is the case we navigate to IdentifyResultFragment, else we
             // have already navigated to IdentifyResultFragment in the bottomsheet and
             // show the drawer layout.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupAttributeListFragment) {
+            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
                 requireActivity().onBackPressed()
             } else {
                 drawer_layout.openDrawer(GravityCompat.START)
