@@ -224,20 +224,16 @@ class PopupView : FrameLayout {
          * Sets up spinner for PopupFields that have a CodedValueDomain.
          */
         private fun setUpSpinner(codedValueDomain: CodedValueDomain, popupField: PopupField) {
-
             val codedValuesNames = mutableListOf<String>()
-            for (codedValue in codedValueDomain.codedValues) {
-                codedValuesNames.add(codedValue.name)
-            }
+            codedValueDomain.codedValues.forEach { codedValue -> codedValuesNames.add(codedValue.name) }
             popupFieldCvdValues.adapter = ArrayAdapter(
                 binding.root.context,
                 android.R.layout.simple_spinner_dropdown_item,
                 codedValuesNames
             )
-            val codedValuePosition = getCodedValuePosition(
-                popupManager.getFieldValue(popupField),
-                codedValueDomain.codedValues
-            )
+            val codedValuePosition = codedValueDomain.codedValues.indexOfFirst { codedValue ->
+                codedValue.code == popupManager.getFieldValue(popupField)
+            }
             // set the PopupField value as selected in the spinner
             popupFieldCvdValues.setSelection(codedValuePosition)
             popupFieldCvdValues.onItemSelectedListener =
@@ -299,22 +295,6 @@ class PopupView : FrameLayout {
                 )
             }
             return error
-        }
-
-        /**
-         * Returns the position of the given code in list of coded values. If no match found,
-         * then the first value in the list is returned.
-         *
-         * @param code the code whose position is to be determined in the coded values list
-         * @param codedValues the list of coded values
-         * */
-        private fun getCodedValuePosition(code: Any, codedValues: List<CodedValue>): Int {
-            for ((index, codedValue) in codedValues.withIndex()) {
-                if (codedValue.code == code) {
-                    return index
-                }
-            }
-            return 0
         }
 
         /**
