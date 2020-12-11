@@ -39,7 +39,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
-import com.esri.arcgisruntime.data.CodedValue
 import com.esri.arcgisruntime.data.CodedValueDomain
 import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.mapping.popup.Popup
@@ -49,6 +48,8 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.BR
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
+
+private const val TAG = "PopupView"
 
 /**
  * Displays the popup attribute list in a [RecyclerView].
@@ -150,20 +151,20 @@ class PopupView : FrameLayout {
     private inner class ViewHolder(private val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        val popupFieldLabel: TextView by lazy {
-            binding.root.popupField
+        val labelTextView: TextView by lazy {
+            binding.root.labelTextView
         }
 
-        val popupFieldValue: TextView by lazy {
-            binding.root.popupFieldValue
+        val valueTextView: TextView by lazy {
+            binding.root.valueTextView
         }
 
-        val popupFieldEditValue: EditText by lazy {
-            binding.root.popupFieldEditValue
+        val valueEditText: EditText by lazy {
+            binding.root.valueEditText
         }
 
-        val popupFieldCvdValues: Spinner by lazy {
-            binding.root.cvdValues
+        val codedValueDomainSpinner: Spinner by lazy {
+            binding.root.codedValueDomainSpinner
         }
 
         fun bind(
@@ -183,40 +184,40 @@ class PopupView : FrameLayout {
                 val codedValueDomain : CodedValueDomain? = popupManager.getDomain(popupField) as? CodedValueDomain
                 if (codedValueDomain != null) {
                     setUpSpinner(codedValueDomain, popupField)
-                    popupFieldEditValue.visibility = View.GONE
-                    popupFieldValue.visibility = View.GONE
-                    popupFieldCvdValues.visibility = View.VISIBLE
+                    valueEditText.visibility = View.GONE
+                    valueTextView.visibility = View.GONE
+                    codedValueDomainSpinner.visibility = View.VISIBLE
                 } else {
-                    popupFieldEditValue.inputType = getInputType(popupManager.getFieldType(popupField))
-                    popupFieldEditValue.visibility = View.VISIBLE
-                    popupFieldValue.visibility = View.GONE
+                    valueEditText.inputType = getInputType(popupManager.getFieldType(popupField))
+                    valueEditText.visibility = View.VISIBLE
+                    valueTextView.visibility = View.GONE
                     //save original colors
-                    val oldColors: ColorStateList = popupFieldLabel.textColors
+                    val oldColors: ColorStateList = labelTextView.textColors
                     // here we assign and hold the values of the editable fields, entered by the user
                     // in popupAttribute.tempValue
-                    popupFieldEditValue.doAfterTextChanged {
-                        if (popupFieldEditValue.hasFocus()) {
+                    valueEditText.doAfterTextChanged {
+                        if (valueEditText.hasFocus()) {
 
                             val validationError: ArcGISRuntimeException? = updateValue(
                                 popupField,
-                                popupFieldEditValue.text.toString()
+                                valueEditText.text.toString()
                             )
                             if (validationError != null) {
                                 val fieldLabelWithValidationError =
                                     popupField.label + ": " + validationError.message
-                                popupFieldLabel.text = fieldLabelWithValidationError
-                                popupFieldLabel.setTextColor(Color.RED)
+                                labelTextView.text = fieldLabelWithValidationError
+                                labelTextView.setTextColor(Color.RED)
                             } else {
-                                popupFieldLabel.text = popupField.label
-                                popupFieldLabel.setTextColor(oldColors)
+                                labelTextView.text = popupField.label
+                                labelTextView.setTextColor(oldColors)
                             }
                         }
                     }
                 }
             } else {
-                popupFieldEditValue.visibility = View.GONE
-                popupFieldCvdValues.visibility = View.GONE
-                popupFieldValue.visibility = View.VISIBLE
+                valueEditText.visibility = View.GONE
+                codedValueDomainSpinner.visibility = View.GONE
+                valueTextView.visibility = View.VISIBLE
             }
         }
 
@@ -226,7 +227,7 @@ class PopupView : FrameLayout {
         private fun setUpSpinner(codedValueDomain: CodedValueDomain, popupField: PopupField) {
             val codedValuesNames = mutableListOf<String>()
             codedValueDomain.codedValues.forEach { codedValue -> codedValuesNames.add(codedValue.name) }
-            popupFieldCvdValues.adapter = ArrayAdapter(
+            codedValueDomainSpinner.adapter = ArrayAdapter(
                 binding.root.context,
                 android.R.layout.simple_spinner_dropdown_item,
                 codedValuesNames
@@ -235,8 +236,8 @@ class PopupView : FrameLayout {
                 codedValue.code == popupManager.getFieldValue(popupField)
             }
             // set the PopupField value as selected in the spinner
-            popupFieldCvdValues.setSelection(codedValuePosition)
-            popupFieldCvdValues.onItemSelectedListener =
+            codedValueDomainSpinner.setSelection(codedValuePosition)
+            codedValueDomainSpinner.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                         TODO("Not yet implemented")
@@ -290,7 +291,7 @@ class PopupView : FrameLayout {
                 Field.Type.TEXT -> error = popupManager.updateValue(newValue, popupField)
 
                 else -> Log.i(
-                    "PopupView",
+                    TAG,
                     "Unhandled field type: " + popupManager.getFieldType(popupField)
                 )
             }

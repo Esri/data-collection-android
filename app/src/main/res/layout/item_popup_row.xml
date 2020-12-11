@@ -32,7 +32,7 @@
             android:layout_height="73dp">
 
         <TextView
-                android:id="@+id/popupField"
+                android:id="@+id/labelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
@@ -43,7 +43,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-                android:id="@+id/popupFieldEditValue"
+                android:id="@+id/valueEditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -55,11 +55,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popupField"
+                app:layout_constraintTop_toBottomOf="@+id/labelTextView"
                 app:layout_constraintVertical_bias="0.975"/>
 
         <TextView
-                android:id="@+id/popupFieldValue"
+                android:id="@+id/valueTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -69,11 +69,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popupField"
+                app:layout_constraintTop_toBottomOf="@+id/labelTextView"
                 app:layout_constraintVertical_bias="0.975" />
 
         <Spinner
-                android:id="@+id/cvdValues"
+                android:id="@+id/codedValueDomainSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
@@ -82,7 +82,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popupField"
+                app:layout_constraintTop_toBottomOf="@+id/labelTextView"
                 app:layout_constraintVertical_bias="0.975"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
