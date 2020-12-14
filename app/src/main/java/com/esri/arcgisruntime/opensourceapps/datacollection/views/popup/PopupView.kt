@@ -19,12 +19,17 @@ package com.esri.arcgisruntime.opensourceapps.datacollection.views.popup
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.text.InputType
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
@@ -34,6 +39,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.ArcGISRuntimeException
+import com.esri.arcgisruntime.data.CodedValueDomain
+import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.popup.PopupManager
@@ -41,6 +48,8 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.BR
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import kotlinx.android.synthetic.main.item_popup_row.view.*
 import kotlinx.android.synthetic.main.layout_popupview.view.*
+
+private const val TAG = "PopupView"
 
 /**
  * Displays the popup attribute list in a [RecyclerView].
@@ -142,16 +151,20 @@ class PopupView : FrameLayout {
     private inner class ViewHolder(private val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        val popupFieldLabel: TextView by lazy {
-            binding.root.popupField
+        val labelTextView: TextView by lazy {
+            binding.root.labelTextView
         }
 
-        val popupFieldValue: TextView by lazy {
-            binding.root.popupFieldValue
+        val valueTextView: TextView by lazy {
+            binding.root.valueTextView
         }
 
-        val popupFieldEditValue: EditText by lazy {
-            binding.root.popupFieldEditValue
+        val valueEditText: EditText by lazy {
+            binding.root.valueEditText
+        }
+
+        val codedValueDomainSpinner: Spinner by lazy {
+            binding.root.codedValueDomainSpinner
         }
 
         fun bind(
@@ -168,32 +181,131 @@ class PopupView : FrameLayout {
          */
         fun updateView(popupField: PopupField) {
             if (isEditMode) {
-                popupFieldEditValue.visibility = View.VISIBLE
-                popupFieldValue.visibility = View.GONE
-                //save original colors
-                val oldColors: ColorStateList = popupFieldLabel.textColors
-                // here we assign and hold the values of the editable fields, entered by the user
-                // in popupAttribute.tempValue
-                popupFieldEditValue.doAfterTextChanged {
-                    if (popupFieldEditValue.hasFocus()) {
-                        val validationError: ArcGISRuntimeException? = popupManager.updateValue(
-                            popupFieldEditValue.text.toString(),
-                            popupField
-                        )
+                val codedValueDomain : CodedValueDomain? = popupManager.getDomain(popupField) as? CodedValueDomain
+                if (codedValueDomain != null) {
+                    setUpSpinner(codedValueDomain, popupField)
+                    valueEditText.visibility = View.GONE
+                    valueTextView.visibility = View.GONE
+                    codedValueDomainSpinner.visibility = View.VISIBLE
+                } else {
+                    valueEditText.inputType = getInputType(popupManager.getFieldType(popupField))
+                    valueEditText.visibility = View.VISIBLE
+                    valueTextView.visibility = View.GONE
+                    //save original colors
+                    val oldColors: ColorStateList = labelTextView.textColors
+                    // here we assign and hold the values of the editable fields, entered by the user
+                    // in popupAttribute.tempValue
+                    valueEditText.doAfterTextChanged {
+                        if (valueEditText.hasFocus()) {
 
-                        if (validationError != null) {
-                            val fieldLabelWithValidationError = popupField.label + ": " + validationError.message
-                            popupFieldLabel.text = fieldLabelWithValidationError
-                            popupFieldLabel.setTextColor(Color.RED)
-                        } else {
-                            popupFieldLabel.text = popupField.label
-                            popupFieldLabel.setTextColor(oldColors)
+                            val validationError: ArcGISRuntimeException? = updateValue(
+                                popupField,
+                                valueEditText.text.toString()
+                            )
+                            if (validationError != null) {
+                                val fieldLabelWithValidationError =
+                                    popupField.label + ": " + validationError.message
+                                labelTextView.text = fieldLabelWithValidationError
+                                labelTextView.setTextColor(Color.RED)
+                            } else {
+                                labelTextView.text = popupField.label
+                                labelTextView.setTextColor(oldColors)
+                            }
                         }
                     }
                 }
             } else {
-                popupFieldEditValue.visibility = View.GONE
-                popupFieldValue.visibility = View.VISIBLE
+                valueEditText.visibility = View.GONE
+                codedValueDomainSpinner.visibility = View.GONE
+                valueTextView.visibility = View.VISIBLE
+            }
+        }
+
+        /**
+         * Sets up spinner for PopupFields that have a CodedValueDomain.
+         */
+        private fun setUpSpinner(codedValueDomain: CodedValueDomain, popupField: PopupField) {
+            val codedValuesNames = mutableListOf<String>()
+            codedValueDomain.codedValues.forEach { codedValue -> codedValuesNames.add(codedValue.name) }
+            codedValueDomainSpinner.adapter = ArrayAdapter(
+                binding.root.context,
+                android.R.layout.simple_spinner_dropdown_item,
+                codedValuesNames
+            )
+            val codedValuePosition = codedValueDomain.codedValues.indexOfFirst { codedValue ->
+                codedValue.code == popupManager.getFieldValue(popupField)
+            }
+            // set the PopupField value as selected in the spinner
+            codedValueDomainSpinner.setSelection(codedValuePosition)
+            codedValueDomainSpinner.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        popupManager.updateValue(
+                            codedValueDomain.codedValues[position].code,
+                            popupField
+                        )
+                    }
+                }
+        }
+
+        /**
+         * Updates the value of the specified PopupField to the appropriately cast string value of
+         * the specified value
+         */
+        private fun updateValue(popupField: PopupField, newValue: String): ArcGISRuntimeException? {
+            var error: ArcGISRuntimeException? = null
+            when (popupManager.getFieldType(popupField)) {
+                Field.Type.SHORT -> error =
+                    if (newValue.toShortOrNull() != null) {
+                        popupManager.updateValue(newValue.toShort(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.INTEGER -> error =
+                    if (newValue.toIntOrNull() != null) {
+                        popupManager.updateValue(newValue.toInt(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.FLOAT -> error =
+                    if (newValue.toFloatOrNull() != null) {
+                        popupManager.updateValue(newValue.toFloat(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.DOUBLE -> error =
+                    if (newValue.toDoubleOrNull() != null) {
+                        popupManager.updateValue(newValue.toDouble(), popupField)
+                    } else {
+                        popupManager.updateValue(newValue, popupField)
+                    }
+                Field.Type.TEXT -> error = popupManager.updateValue(newValue, popupField)
+
+                else -> Log.i(
+                    TAG,
+                    "Unhandled field type: " + popupManager.getFieldType(popupField)
+                )
+            }
+            return error
+        }
+
+        /**
+         * Returns the int value representing the input type for EditText view.
+         */
+        private fun getInputType(fieldType: Field.Type): Int {
+            return when (fieldType) {
+                Field.Type.SHORT, Field.Type.INTEGER -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
+                Field.Type.FLOAT, Field.Type.DOUBLE -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+                else -> InputType.TYPE_CLASS_TEXT
             }
         }
     }
