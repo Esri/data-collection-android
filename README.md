@@ -37,7 +37,7 @@ Read the [docs](./docs/README.md) for a detailed explanation of the application,
 
 ## Development Instructions
 
-Data Collection is an [Android Studio](https://developer.android.com/studio) project and app module that can be directly cloned and imported into Android Studio.
+Data Collection is an [Android Studio](https://developer.android.com/studio/) project and app module that can be directly cloned and imported into Android Studio.
 
 1. Log in to [ArcGIS for Developers](https://developers.arcgis.com/) and [register](https://developers.arcgis.com/applications/#/) your app.
 
@@ -109,7 +109,7 @@ If there are changes made in the original repository, you can sync the fork to k
 
 ## Requirements
 
-* [Android Studio](https://developer.android.com/studio)
+* [Android Studio](https://developer.android.com/studio/)
 
 ## Resources
 
