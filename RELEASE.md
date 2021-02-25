@@ -1,3 +1,7 @@
+# Release 0.1.4
+
+- Support for ArcGIS Runtime SDK for Android 100.10.0
+
 # Release 0.1.3
 
 - Updates project to favor the use of secured `https` rather than `http`
