@@ -114,7 +114,6 @@ If there are changes made in the original repository, you can sync the fork to k
 ## Resources
 
 * [ArcGIS Runtime SDK for Android Developers Site](https://developers.arcgis.com/android/)
-* [ArcGIS Apps Blog](https://www.esri.com/arcgis-blog/apps/)
 * [ArcGIS Developer Blog](https://www.esri.com/arcgis-blog/developers/)
 * [twitter@ArcGISRuntime](https://twitter.com/ArcGISRuntime)
 * [twitter@esri](http://twitter.com/esri)
