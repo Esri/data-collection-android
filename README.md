@@ -37,7 +37,7 @@ Read the [docs](./docs/README.md) for a detailed explanation of the application,
 
 ## Development Instructions
 
-Data Collection is an [Android Studio](http://developer.android.com/sdk/index.html) project and app module that can be directly cloned and imported into Android Studio.
+Data Collection is an [Android Studio](https://developer.android.com/studio/) project and app module that can be directly cloned and imported into Android Studio.
 
 1. Log in to [ArcGIS for Developers](https://developers.arcgis.com/) and [register](https://developers.arcgis.com/applications/#/) your app.
 
@@ -109,13 +109,12 @@ If there are changes made in the original repository, you can sync the fork to k
 
 ## Requirements
 
-* [Android Studio](http://developer.android.com/sdk/index.html)
+* [Android Studio](https://developer.android.com/studio/)
 
 ## Resources
 
 * [ArcGIS Runtime SDK for Android Developers Site](https://developers.arcgis.com/android/)
-* [ArcGIS Mobile Blog](http://blogs.esri.com/esri/arcgis/category/mobile/)
-* [ArcGIS Developer Blog](http://blogs.esri.com/esri/arcgis/category/developer/)
+* [ArcGIS Developer Blog](https://www.esri.com/arcgis-blog/developers/)
 * [twitter@ArcGISRuntime](https://twitter.com/ArcGISRuntime)
 * [twitter@esri](http://twitter.com/esri)
 
@@ -147,4 +146,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 A copy of the license is available in the repository's [LICENSE](./LICENSE) file.
 
-For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/android/latest/guide/license-your-app.htm).
+For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/android/license-and-deployment/).
