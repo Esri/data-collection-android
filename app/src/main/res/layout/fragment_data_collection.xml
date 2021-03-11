@@ -67,8 +67,9 @@
                         app:cardCornerRadius="12dp"
                         android:background="@android:color/white"
                         app:behavior_peekHeight="80dp"
-                        app:behavior_fitToContents="true"
-                        app:behavior_draggable="false"
+                        app:behavior_halfExpandedRatio="0.5"
+                        app:behavior_fitToContents="false"
+                        app:behavior_draggable="true"
                         app:behavior_hideable="true"
                         android:clickable="true"
                         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
