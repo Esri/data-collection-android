@@ -189,22 +189,6 @@ class DataCollectionFragment : Fragment() {
             }
         }
 
-        // Handle the navigation button clicks on the toolbar to open the drawer and act as a back
-        // button
-        toolbar.setNavigationOnClickListener {
-            // When the user presses the navigation button to go back from PopupAttributeListFragment
-            // to IdentifyResultFragment in the bottomsheet, the bottomSheetNavController will still
-            // be holding on to PopupAttributeListFragment as the current destination when we last
-            // navigated to it. If that is the case we navigate to IdentifyResultFragment, else we
-            // have already navigated to IdentifyResultFragment in the bottomsheet and
-            // show the drawer layout.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
-                requireActivity().onBackPressed()
-            } else {
-                drawer_layout.openDrawer(GravityCompat.START)
-            }
-        }
-
         mapView.onTouchListener =
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
