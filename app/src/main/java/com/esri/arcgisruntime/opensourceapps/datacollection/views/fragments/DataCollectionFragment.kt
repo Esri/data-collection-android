@@ -160,7 +160,7 @@ class DataCollectionFragment : Fragment() {
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
         return view
     }
@@ -169,7 +169,7 @@ class DataCollectionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // setup the app bar and drawer layout
-        val navController = activity?.findNavController(R.id.bottomSheetNavHostFragment)
+        val navController = activity?.findNavController(R.id.navHostFragment)
         navController?.let {
             val appBarConfiguration = AppBarConfiguration(navController.graph, drawer_layout)
             view.findViewById<Toolbar>(R.id.toolbar)
