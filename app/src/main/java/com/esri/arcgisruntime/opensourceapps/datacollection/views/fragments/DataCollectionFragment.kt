@@ -95,10 +95,6 @@ class DataCollectionFragment : Fragment() {
                     } else {
                         requireActivity().finish()
                     }
-                // if the bottomsheet is in the STATE_EXPANDED then we are showing
-                // PopupAttributeListFragment and we need return back to the IdentifyResultFragment
-                // which shows up in STATE_COLLAPSED
-                bottomSheetBehavior.state == STATE_EXPANDED -> dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
             }
         }
     }
@@ -132,6 +128,22 @@ class DataCollectionFragment : Fragment() {
             bottomSheetBehavior.state = it
         })
 
+        // add logic to clear the identified feature on the map if the user dismisses the
+        // bottomsheet by sliding it.
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when(newState) {
+                    STATE_HIDDEN ->
+                        // Clear the selected features from the feature layer
+                        resetIdentifyResult()
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // handle onSlide
+            }
+        })
+
         // On orientation change if we have a valid value for identifyLayerResult,
         // we highlight the first feature from the result.
         identifyResultViewModel.identifyLayerResult.value?.let {
@@ -144,20 +156,14 @@ class DataCollectionFragment : Fragment() {
 
         identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
-            // PopupAttributeListFragment shows all popup attributes, so we
-            // show them in expanded(full screen) state of the bottom sheet
-            dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
         identifyResultViewModel.showIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
-            // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
-            // bottomsheet containing popupAttributeListFragment.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
-                bottomSheetNavController.popBackStack()
+            // IdentifyResultFragment shows a few selected popup attributes. We
+            // show them in half expanded state of the bottom sheet
+            if (dataCollectionViewModel.bottomSheetState.value == STATE_HIDDEN) {
+                dataCollectionViewModel.setCurrentBottomSheetState(STATE_HALF_EXPANDED)
             }
-            // IdentifyResultFragment only shows a few selected popup attributes, so we
-            // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
-            dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
@@ -192,18 +198,28 @@ class DataCollectionFragment : Fragment() {
         mapView.onTouchListener =
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
 
-                    e?.let {
-                        val screenPoint = android.graphics.Point(
-                            it.x.roundToInt(),
-                            it.y.roundToInt()
-                        )
-                        identifyLayer(screenPoint)
+                    // Only perform identify on the mapview if the Popup is not in edit mode
+                    if (popupViewModel.isPopupInEditMode.value == false) {
+                        // If the user tapped on the mapview to perform an identify and
+                        // is currently looking at a popup's attributes we move back to
+                        // IdentifyResultFragment to perform identify
+                        if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
+                            bottomSheetNavController.popBackStack()
+                        }
+
+                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+
+                        e?.let {
+                            val screenPoint = android.graphics.Point(
+                                it.x.roundToInt(),
+                                it.y.roundToInt()
+                            )
+                            identifyLayer(screenPoint)
+                        }
                     }
                     return true
                 }
-
             }
     }
 
