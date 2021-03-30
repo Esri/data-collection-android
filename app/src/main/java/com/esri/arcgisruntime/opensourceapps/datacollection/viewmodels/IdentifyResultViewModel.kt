@@ -38,6 +38,9 @@ class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() 
     private val _showIdentifyResultEvent = MutableLiveData<Event<Unit>>()
     val showIdentifyResultEvent: LiveData<Event<Unit>> = _showIdentifyResultEvent
 
+    private val _dismissIdentifyResultEvent = MutableLiveData<Event<Unit>>()
+    val dismissIdentifyResultEvent: LiveData<Event<Unit>> = _dismissIdentifyResultEvent
+
     private val _identifyLayerResult = MutableLiveData<IdentifyLayerResult>()
     val identifyLayerResult: LiveData<IdentifyLayerResult> = _identifyLayerResult
 
@@ -87,6 +90,13 @@ class IdentifyResultViewModel(val popupViewModel: PopupViewModel) : ViewModel() 
     fun resetIdentifyLayerResult() {
         _identifyLayerResult.value = null
         popupViewModel.clearPopup()
+    }
+
+    /**
+     * Raises an event to dismiss the identify results
+     */
+    fun dismissIdentifyLayerResult() {
+        _dismissIdentifyResultEvent.raiseEvent()
     }
 
     /**

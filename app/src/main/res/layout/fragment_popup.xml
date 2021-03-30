@@ -65,7 +65,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/controlLayout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="80dp"
                 app:layout_constraintBottom_toTopOf="@id/guideline"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -98,36 +98,75 @@
                     app:layout_constraintVertical_bias="0.466" />
 
             <ImageView
-                    android:id="@+id/edit"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:id="@+id/close"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_marginStart="12dp"
-                    android:contentDescription="@string/edit"
-                    android:onClick="@{() -> popupViewModel.setEditMode(true)}"
+                    android:onClick="@{() -> popupViewModel.dismissPopup()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.918"
                     app:layout_constraintStart_toEndOf="@id/title"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.466"
-                    app:srcCompat="@drawable/ic_pencil_24" />
+                    app:layout_constraintVertical_bias="0.464"
+                    app:srcCompat="@drawable/ic_x_circle_16" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/editLayout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="#E6DEDE"
+                app:layout_constraintTop_toBottomOf="@id/guideline"
+                app:layout_constraintBottom_toTopOf="@id/popupView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                    android:id="@+id/edit"
+                    android:layout_width="30dp"
+                    android:layout_height="34dp"
+                    android:contentDescription="@string/edit"
+                    android:onClick="@{() -> popupViewModel.setEditMode(true)}"
+                    android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.718"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintVertical_bias="0.475"
+                    app:srcCompat="@drawable/ic_edit_attributes_16" />
+
+            <ImageView
+                    android:id="@+id/delete"
+                    android:layout_width="30dp"
+                    android:layout_height="34dp"
+                    android:contentDescription="@string/cancel"
+                    android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
+                    android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/edit"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintVertical_bias="0.475"
+                    app:srcCompat="@drawable/ic_trash_16" />
 
             <ImageView
                     android:id="@+id/ok"
                     android:layout_width="30dp"
                     android:layout_height="34dp"
-                    android:layout_marginStart="12dp"
                     android:contentDescription="@string/ok"
                     android:onClick="@{() -> popupViewModel.savePopupEdits()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.918"
-                    app:layout_constraintStart_toEndOf="@id/title"
+                    app:layout_constraintHorizontal_bias="0.718"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.466"
-                    app:srcCompat="@drawable/ic_check_24" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintVertical_bias="0.475"
+                    app:srcCompat="@drawable/ic_save_16" />
 
             <ImageView
                     android:id="@+id/cancel"
@@ -137,10 +176,10 @@
                     android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/edit"
-                    app:layout_constraintHorizontal_bias="0.825"
-                    app:layout_constraintStart_toEndOf="@id/title"
+                    app:layout_constraintStart_toEndOf="@id/ok"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintVertical_bias="0.475"
                     app:srcCompat="@drawable/ic_x_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -150,17 +189,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_begin="64dp" />
+                app:layout_constraintGuide_begin="80dp" />
 
         <View
-                android:id="@+id/separatingLine"
+                android:id="@+id/separatingLine1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#c0c0c0"
+                app:layout_constraintBottom_toTopOf="@id/editLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/controlLayout" />
+
+        <View
+                android:id="@+id/separatingLine2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#c0c0c0"
                 app:layout_constraintBottom_toTopOf="@id/popupView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/controlLayout" />
+                app:layout_constraintTop_toBottomOf="@id/editLayout" />
 
             <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
                     android:id="@+id/popupView"
@@ -169,7 +218,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/guideline"
+                    app:layout_constraintTop_toBottomOf="@id/editLayout"
                     app:popup="@{popupViewModel.popup}"
                     app:popupManager="@{popupViewModel.popupManager}"
                     app:editMode="@{popupViewModel.isPopupInEditMode()}">

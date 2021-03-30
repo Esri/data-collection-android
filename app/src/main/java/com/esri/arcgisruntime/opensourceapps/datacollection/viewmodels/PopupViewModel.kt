@@ -73,6 +73,10 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
     // It is used for showing confirmation dialog to the user, before calling cancelEditing()
     val confirmCancelPopupEditingEvent: LiveData<Event<Unit>> = _confirmCancelPopupEditingEvent
 
+    private val _dismissPopupEvent = MutableLiveData<Event<Unit>>()
+    // This event is raised when the user taps on the close button to dismiss the popup.
+    val dismissPopupEvent: LiveData<Event<Unit>> = _dismissPopupEvent
+
     /**
      * Updates popup property to set the popup field values being displayed in
      * the bottom sheet. Creates PopupManager for PopupView to perform edit operations.
@@ -114,6 +118,13 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun confirmCancelEditing() {
         _confirmCancelPopupEditingEvent.raiseEvent()
+    }
+
+    /**
+     * Raises an event to dismiss the popup
+     */
+    fun dismissPopup() {
+        _dismissPopupEvent.raiseEvent()
     }
 
     /**

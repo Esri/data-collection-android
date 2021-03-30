@@ -27,7 +27,6 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -45,7 +44,10 @@ import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupView
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import kotlinx.android.synthetic.main.fragment_data_collection.*
 import java.security.InvalidParameterException
 import kotlin.math.roundToInt
@@ -85,16 +87,9 @@ class DataCollectionFragment : Fragment() {
                 // when the user presses the back button when PopupAttributesListFragment is showing
                 // from the bottomsheet_navigation graph we pop it from the BackStack to go to the
                 // previous IdentifyResultFragment. When the backstack is at identifyResultFragment
-                // popBackStack() will return a false and we will hide the bottomsheet and clear the
-                // selected feature in the Featurelayer. If the bottomsheet is already hidden exit
-                // the DataCollectionActivity.
+                // popBackStack() will return a false and we will exit the DataCollectionActivity.
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
-                    if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
-                        resetIdentifyResult()
-                    } else {
-                        requireActivity().finish()
-                    }
+                    requireActivity().finish()
             }
         }
     }
@@ -124,24 +119,11 @@ class DataCollectionFragment : Fragment() {
                 ?: throw InvalidParameterException("bottomSheetNavHostFragment must exist")
         bottomSheetNavController = bottomSheetNavHostFragment.findNavController()
 
-        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, Observer {
-            bottomSheetBehavior.state = it
-        })
-
-        // add logic to clear the identified feature on the map if the user dismisses the
-        // bottomsheet by sliding it.
-        bottomSheetBehavior.addBottomSheetCallback(object :
-            BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when(newState) {
-                    STATE_HIDDEN ->
-                        // Clear the selected features from the feature layer
-                        resetIdentifyResult()
-                }
+        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, { bottomSheetState ->
+            if (bottomSheetState == STATE_HIDDEN) {
+                bottomSheetBehavior.isHideable = true
             }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                // handle onSlide
-            }
+            bottomSheetBehavior.state = bottomSheetState
         })
 
         // On orientation change if we have a valid value for identifyLayerResult,
@@ -162,8 +144,20 @@ class DataCollectionFragment : Fragment() {
             // IdentifyResultFragment shows a few selected popup attributes. We
             // show them in half expanded state of the bottom sheet
             if (dataCollectionViewModel.bottomSheetState.value == STATE_HIDDEN) {
+                bottomSheetBehavior.isHideable = false
                 dataCollectionViewModel.setCurrentBottomSheetState(STATE_HALF_EXPANDED)
             }
+        }
+
+        popupViewModel.dismissPopupEvent.observeEvent(viewLifecycleOwner) {
+            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
+            resetIdentifyResult()
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+        }
+
+        identifyResultViewModel.dismissIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
+            resetIdentifyResult()
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)

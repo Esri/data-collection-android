@@ -81,6 +81,20 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.65"/>
 
+        <ImageView
+                android:id="@+id/close"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="12dp"
+                android:onClick="@{() -> identifyResultViewModel.dismissIdentifyLayerResult()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.918"
+                app:layout_constraintStart_toEndOf="@id/title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.446"
+                app:srcCompat="@drawable/ic_x_circle_16" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
