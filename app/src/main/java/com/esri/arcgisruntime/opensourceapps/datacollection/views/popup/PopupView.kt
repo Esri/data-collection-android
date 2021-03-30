@@ -167,6 +167,10 @@ class PopupView : FrameLayout {
             binding.root.codedValueDomainSpinner
         }
 
+        val separatingLineView: View by lazy {
+            binding.root.separatingLine
+        }
+
         fun bind(
             popupField: PopupField
         ) {
@@ -187,9 +191,11 @@ class PopupView : FrameLayout {
                     valueEditText.visibility = View.GONE
                     valueTextView.visibility = View.GONE
                     codedValueDomainSpinner.visibility = View.VISIBLE
+                    separatingLineView.visibility = View.VISIBLE
                 } else {
                     valueEditText.inputType = getInputType(popupManager.getFieldType(popupField))
                     valueEditText.visibility = View.VISIBLE
+                    separatingLineView.visibility = View.GONE
                     valueTextView.visibility = View.GONE
                     //save original colors
                     val oldColors: ColorStateList = labelTextView.textColors
@@ -218,6 +224,7 @@ class PopupView : FrameLayout {
                 valueEditText.visibility = View.GONE
                 codedValueDomainSpinner.visibility = View.GONE
                 valueTextView.visibility = View.VISIBLE
+                separatingLineView.visibility = View.VISIBLE
             }
         }
 

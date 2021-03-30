@@ -29,7 +29,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="85dp">
+            android:layout_height="105dp">
 
         <TextView
                 android:id="@+id/labelTextView"
@@ -59,21 +59,29 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_begin="40dp" />
 
-        <EditText
-                android:id="@+id/valueEditText"
-                android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/outlinedTextField"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="12"
-                android:background="@null"
-                android:textSize="18sp"
-                android:text="@{popupManager.getFormattedValue(popupField)}"
-                android:visibility="gone"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="30dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="@+id/verticalConstraintGuideline"
                 app:layout_constraintTop_toBottomOf="@+id/labelTextView"
-                app:layout_constraintVertical_bias="0.407"/>
+                app:layout_constraintVertical_bias="0.407">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/valueEditText"
+                    android:text="@{popupManager.getFormattedValue(popupField)}"
+                    />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
                 android:id="@+id/valueTextView"
@@ -91,8 +99,10 @@
 
         <Spinner
                 android:id="@+id/codedValueDomainSpinner"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="30dp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -106,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_begin="83dp" />
+                app:layout_constraintGuide_begin="102dp" />
 
         <View
                 android:id="@+id/separatingLine"

@@ -150,9 +150,9 @@ class DataCollectionFragment : Fragment() {
         }
 
         popupViewModel.dismissPopupEvent.observeEvent(viewLifecycleOwner) {
-            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
             resetIdentifyResult()
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
         }
 
         identifyResultViewModel.dismissIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
@@ -199,7 +199,7 @@ class DataCollectionFragment : Fragment() {
                         // is currently looking at a popup's attributes we move back to
                         // IdentifyResultFragment to perform identify
                         if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
-                            bottomSheetNavController.popBackStack()
+                            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
                         }
 
                         dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
