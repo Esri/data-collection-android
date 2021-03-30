@@ -59,8 +59,8 @@ class PopupView : FrameLayout {
     private val popupAttributeListAdapter by lazy { PopupAttributeListAdapter() }
     private var isEditMode: Boolean = false
 
-    lateinit var popupManager: PopupManager
-    lateinit var popup: Popup
+    var popupManager: PopupManager? = null
+    var popup: Popup? = null
 
     /**
      * Constructor used when instantiating this View directly to attach it to another view programmatically.
@@ -90,13 +90,15 @@ class PopupView : FrameLayout {
      */
     fun setEditMode(isEnabled: Boolean) {
         isEditMode = isEnabled
-        if (isEnabled) {
-            popupAttributeListAdapter.submitList(popupManager.editableFields)
-            popupManager.startEditing()
-        } else {
-            popupAttributeListAdapter.submitList(popupManager.displayedFields)
+        popupManager?.let { popupManager->
+            if (isEnabled) {
+                popupAttributeListAdapter.submitList(popupManager.editableFields)
+                popupManager.startEditing()
+            } else {
+                popupAttributeListAdapter.submitList(popupManager.displayedFields)
+            }
+            popupAttributeListAdapter.notifyDataSetChanged()
         }
-        popupAttributeListAdapter.notifyDataSetChanged()
     }
 
     /**
@@ -184,47 +186,51 @@ class PopupView : FrameLayout {
          * edit mode of the popupView.
          */
         fun updateView(popupField: PopupField) {
-            if (isEditMode) {
-                val codedValueDomain : CodedValueDomain? = popupManager.getDomain(popupField) as? CodedValueDomain
-                if (codedValueDomain != null) {
-                    setUpSpinner(codedValueDomain, popupField)
-                    valueEditText.visibility = View.GONE
-                    valueTextView.visibility = View.GONE
-                    codedValueDomainSpinner.visibility = View.VISIBLE
-                    separatingLineView.visibility = View.VISIBLE
-                } else {
-                    valueEditText.inputType = getInputType(popupManager.getFieldType(popupField))
-                    valueEditText.visibility = View.VISIBLE
-                    separatingLineView.visibility = View.GONE
-                    valueTextView.visibility = View.GONE
-                    //save original colors
-                    val oldColors: ColorStateList = labelTextView.textColors
-                    // here we assign and hold the values of the editable fields, entered by the user
-                    // in popupAttribute.tempValue
-                    valueEditText.doAfterTextChanged {
-                        if (valueEditText.hasFocus()) {
+            popupManager?.let { popupManager ->
+                if (isEditMode) {
+                    val codedValueDomain: CodedValueDomain? =
+                        popupManager.getDomain(popupField) as? CodedValueDomain
+                    if (codedValueDomain != null) {
+                        setUpSpinner(codedValueDomain, popupField)
+                        valueEditText.visibility = View.GONE
+                        valueTextView.visibility = View.GONE
+                        codedValueDomainSpinner.visibility = View.VISIBLE
+                        separatingLineView.visibility = View.VISIBLE
+                    } else {
+                        valueEditText.inputType =
+                            getInputType(popupManager.getFieldType(popupField))
+                        valueEditText.visibility = View.VISIBLE
+                        separatingLineView.visibility = View.GONE
+                        valueTextView.visibility = View.GONE
+                        //save original colors
+                        val oldColors: ColorStateList = labelTextView.textColors
+                        // here we assign and hold the values of the editable fields, entered by the user
+                        // in popupAttribute.tempValue
+                        valueEditText.doAfterTextChanged {
+                            if (valueEditText.hasFocus()) {
 
-                            val validationError: ArcGISRuntimeException? = updateValue(
-                                popupField,
-                                valueEditText.text.toString()
-                            )
-                            if (validationError != null) {
-                                val fieldLabelWithValidationError =
-                                    popupField.label + ": " + validationError.message
-                                labelTextView.text = fieldLabelWithValidationError
-                                labelTextView.setTextColor(Color.RED)
-                            } else {
-                                labelTextView.text = popupField.label
-                                labelTextView.setTextColor(oldColors)
+                                val validationError: ArcGISRuntimeException? = updateValue(
+                                    popupField,
+                                    valueEditText.text.toString()
+                                )
+                                if (validationError != null) {
+                                    val fieldLabelWithValidationError =
+                                        popupField.label + ": " + validationError.message
+                                    labelTextView.text = fieldLabelWithValidationError
+                                    labelTextView.setTextColor(Color.RED)
+                                } else {
+                                    labelTextView.text = popupField.label
+                                    labelTextView.setTextColor(oldColors)
+                                }
                             }
                         }
                     }
+                } else {
+                    valueEditText.visibility = View.GONE
+                    codedValueDomainSpinner.visibility = View.GONE
+                    valueTextView.visibility = View.VISIBLE
+                    separatingLineView.visibility = View.VISIBLE
                 }
-            } else {
-                valueEditText.visibility = View.GONE
-                codedValueDomainSpinner.visibility = View.GONE
-                valueTextView.visibility = View.VISIBLE
-                separatingLineView.visibility = View.VISIBLE
             }
         }
 
@@ -240,7 +246,7 @@ class PopupView : FrameLayout {
                 codedValuesNames
             )
             val codedValuePosition = codedValueDomain.codedValues.indexOfFirst { codedValue ->
-                codedValue.code == popupManager.getFieldValue(popupField)
+                codedValue.code == popupManager?.getFieldValue(popupField)
             }
             // set the PopupField value as selected in the spinner
             codedValueDomainSpinner.setSelection(codedValuePosition)
@@ -256,7 +262,7 @@ class PopupView : FrameLayout {
                         position: Int,
                         id: Long
                     ) {
-                        popupManager.updateValue(
+                        popupManager?.updateValue(
                             codedValueDomain.codedValues[position].code,
                             popupField
                         )
@@ -270,37 +276,39 @@ class PopupView : FrameLayout {
          */
         private fun updateValue(popupField: PopupField, newValue: String): ArcGISRuntimeException? {
             var error: ArcGISRuntimeException? = null
-            when (popupManager.getFieldType(popupField)) {
-                Field.Type.SHORT -> error =
-                    if (newValue.toShortOrNull() != null) {
-                        popupManager.updateValue(newValue.toShort(), popupField)
-                    } else {
-                        popupManager.updateValue(newValue, popupField)
-                    }
-                Field.Type.INTEGER -> error =
-                    if (newValue.toIntOrNull() != null) {
-                        popupManager.updateValue(newValue.toInt(), popupField)
-                    } else {
-                        popupManager.updateValue(newValue, popupField)
-                    }
-                Field.Type.FLOAT -> error =
-                    if (newValue.toFloatOrNull() != null) {
-                        popupManager.updateValue(newValue.toFloat(), popupField)
-                    } else {
-                        popupManager.updateValue(newValue, popupField)
-                    }
-                Field.Type.DOUBLE -> error =
-                    if (newValue.toDoubleOrNull() != null) {
-                        popupManager.updateValue(newValue.toDouble(), popupField)
-                    } else {
-                        popupManager.updateValue(newValue, popupField)
-                    }
-                Field.Type.TEXT -> error = popupManager.updateValue(newValue, popupField)
+            popupManager?.let { popupManager ->
+                when (popupManager.getFieldType(popupField)) {
+                    Field.Type.SHORT -> error =
+                        if (newValue.toShortOrNull() != null) {
+                            popupManager.updateValue(newValue.toShort(), popupField)
+                        } else {
+                            popupManager.updateValue(newValue, popupField)
+                        }
+                    Field.Type.INTEGER -> error =
+                        if (newValue.toIntOrNull() != null) {
+                            popupManager.updateValue(newValue.toInt(), popupField)
+                        } else {
+                            popupManager.updateValue(newValue, popupField)
+                        }
+                    Field.Type.FLOAT -> error =
+                        if (newValue.toFloatOrNull() != null) {
+                            popupManager.updateValue(newValue.toFloat(), popupField)
+                        } else {
+                            popupManager.updateValue(newValue, popupField)
+                        }
+                    Field.Type.DOUBLE -> error =
+                        if (newValue.toDoubleOrNull() != null) {
+                            popupManager.updateValue(newValue.toDouble(), popupField)
+                        } else {
+                            popupManager.updateValue(newValue, popupField)
+                        }
+                    Field.Type.TEXT -> error = popupManager.updateValue(newValue, popupField)
 
-                else -> Log.i(
-                    TAG,
-                    "Unhandled field type: " + popupManager.getFieldType(popupField)
-                )
+                    else -> Log.i(
+                        TAG,
+                        "Unhandled field type: " + popupManager.getFieldType(popupField)
+                    )
+                }
             }
             return error
         }
