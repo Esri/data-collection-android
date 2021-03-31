@@ -99,8 +99,8 @@
 
             <ImageView
                     android:id="@+id/close"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginStart="12dp"
                     android:onClick="@{() -> popupViewModel.dismissPopup()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
@@ -110,7 +110,7 @@
                     app:layout_constraintStart_toEndOf="@id/title"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.464"
-                    app:srcCompat="@drawable/ic_x_circle_16" />
+                    app:srcCompat="@drawable/ic_x_circle_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -118,7 +118,7 @@
                 android:id="@+id/editLayout"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="#E6DEDE"
+                android:background="#F7F7F7"
                 app:layout_constraintTop_toBottomOf="@id/guideline"
                 app:layout_constraintBottom_toTopOf="@id/popupView"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -126,8 +126,8 @@
 
             <ImageView
                     android:id="@+id/edit"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@string/edit"
                     android:onClick="@{() -> popupViewModel.setEditMode(true)}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
@@ -137,12 +137,12 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintVertical_bias="0.475"
-                    app:srcCompat="@drawable/ic_edit_attributes_16" />
+                    app:srcCompat="@drawable/ic_pencil_24" />
 
             <ImageView
                     android:id="@+id/delete"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@string/cancel"
                     android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
@@ -151,12 +151,12 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintVertical_bias="0.475"
-                    app:srcCompat="@drawable/ic_trash_16" />
+                    app:srcCompat="@drawable/ic_trash_24" />
 
             <ImageView
                     android:id="@+id/ok"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@string/ok"
                     android:onClick="@{() -> popupViewModel.savePopupEdits()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
@@ -166,12 +166,12 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintVertical_bias="0.475"
-                    app:srcCompat="@drawable/ic_save_16" />
+                    app:srcCompat="@drawable/ic_save_24" />
 
             <ImageView
                     android:id="@+id/cancel"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@string/cancel"
                     android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
