@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -54,9 +55,13 @@ class PopupFragment : Fragment() {
 
         popupViewModel.showSavingProgressEvent.observeEvent(viewLifecycleOwner) { isShowProgressBar ->
             if (isShowProgressBar) {
+                requireActivity().window.setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 progressBarLayout.visibility = View.VISIBLE
             } else {
                 progressBarLayout.visibility = View.GONE
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             }
         }
 
