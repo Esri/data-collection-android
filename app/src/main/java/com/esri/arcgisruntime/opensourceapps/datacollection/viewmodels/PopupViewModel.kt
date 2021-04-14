@@ -81,7 +81,7 @@ class PopupViewModel(application: Application) : AndroidViewModel(application) {
     private val _dismissPopupEvent = MutableLiveData<Event<Unit>>()
     // This event is raised when the user taps on the close button to dismiss the popup.
     val dismissPopupEvent: LiveData<Event<Unit>> = _dismissPopupEvent
-    cancelEditing
+
     private val _confirmDeletePopupEvent = MutableLiveData<Event<Unit>>()
     // This event is raised when the user presses the button to delete the Popup.
     // It is used for showing confirmation dialog to the user, before calling deletePopup()
