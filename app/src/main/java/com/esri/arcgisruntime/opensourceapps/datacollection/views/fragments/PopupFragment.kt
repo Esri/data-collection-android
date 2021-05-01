@@ -27,9 +27,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupBinding
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
+import com.esri.arcgisruntime.toolkit.util.observeEvent
 import kotlinx.android.synthetic.main.fragment_popup.*
 
 /**

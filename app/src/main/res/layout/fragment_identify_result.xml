@@ -24,7 +24,7 @@
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel" />
         <variable
                 name="popupViewModel"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel"/>
+                type="com.esri.arcgisruntime.toolkit.popup.PopupViewModel"/>
     </data>
 
 

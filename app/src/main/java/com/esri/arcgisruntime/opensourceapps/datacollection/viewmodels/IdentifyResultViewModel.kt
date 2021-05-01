@@ -25,8 +25,9 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.LayerContent
 import com.esri.arcgisruntime.mapping.GeoElement
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
+import com.esri.arcgisruntime.toolkit.util.Event
+import com.esri.arcgisruntime.toolkit.util.raiseEvent
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
 
 /**
  * The view model for IdentifyResultFragment, that is responsible for processing the result of

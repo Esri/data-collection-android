@@ -25,9 +25,9 @@ import androidx.security.crypto.MasterKeys
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
+import com.esri.arcgisruntime.toolkit.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
+import com.esri.arcgisruntime.toolkit.util.raiseEvent
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalUser

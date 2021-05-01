@@ -36,15 +36,14 @@ import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentDataCollectionBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
+import com.esri.arcgisruntime.toolkit.util.observeEvent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
