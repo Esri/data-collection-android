@@ -73,6 +73,11 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
     private val _bottomSheetState: MutableLiveData<Int> = MutableLiveData(BottomSheetBehavior.STATE_HIDDEN)
     val bottomSheetState: LiveData<Int> = _bottomSheetState
 
+    private val _isShowPopupEditControls = MutableLiveData(false)
+    // Depicts whether to show the edit layout to modify the selected popup attributes
+    // being displayed in the bottomsheet
+    val isShowPopupEditControls: LiveData<Boolean> = _isShowPopupEditControls
+
     private val encryptedSharedPrefs by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
         EncryptedSharedPreferences.create(
@@ -178,6 +183,15 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      */
     fun setCurrentBottomSheetState(bottomSheetState: Int) {
         _bottomSheetState.value = bottomSheetState
+    }
+
+    /**
+     * Sets whether to display the Popup editing control view.
+     *
+     * @param showPopupEditControls
+     */
+    fun setShowPopupEditControls(showPopupEditControls: Boolean) {
+        _isShowPopupEditControls.value = showPopupEditControls
     }
 
     /**

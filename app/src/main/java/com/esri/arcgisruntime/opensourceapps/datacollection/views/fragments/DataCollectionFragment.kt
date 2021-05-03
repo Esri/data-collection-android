@@ -81,6 +81,7 @@ class DataCollectionFragment : Fragment() {
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
+            dataCollectionViewModel.setShowPopupEditControls(false)
             when {
                 // we handle the back button press here to navigate back in the bottomsheet.
                 // when the user presses the back button when PopupAttributesListFragment is showing
@@ -106,6 +107,7 @@ class DataCollectionFragment : Fragment() {
 
         val view = fragmentDataCollectionBinding.root
 
+        fragmentDataCollectionBinding.popupViewModel = popupViewModel
         fragmentDataCollectionBinding.dataCollectionViewModel = dataCollectionViewModel
         fragmentDataCollectionBinding.lifecycleOwner = this
 
@@ -136,6 +138,7 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
+            dataCollectionViewModel.setShowPopupEditControls(true)
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
         }
 
@@ -150,6 +153,7 @@ class DataCollectionFragment : Fragment() {
 
         popupViewModel.dismissPopupEvent.observeEvent(viewLifecycleOwner) {
             resetIdentifyResult()
+            dataCollectionViewModel.setShowPopupEditControls(false)
             dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
             bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
         }
