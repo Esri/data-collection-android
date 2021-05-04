@@ -17,6 +17,7 @@
 package com.esri.arcgisruntime.opensourceapps.datacollection.views.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -44,8 +45,12 @@ import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
 import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
 import com.esri.arcgisruntime.toolkit.util.observeEvent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import kotlinx.android.synthetic.main.fragment_data_collection.*
 import java.security.InvalidParameterException
@@ -127,6 +132,25 @@ class DataCollectionFragment : Fragment() {
             bottomSheetBehavior.state = bottomSheetState
         })
 
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // handle onSlide
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
+                    when (newState) {
+                        STATE_COLLAPSED -> dataCollectionViewModel.setShowPopupEditControls(false)
+                        STATE_HIDDEN -> dataCollectionViewModel.setShowPopupEditControls(false)
+                        STATE_HALF_EXPANDED -> dataCollectionViewModel.setShowPopupEditControls(true)
+                        STATE_EXPANDED -> dataCollectionViewModel.setShowPopupEditControls(true)
+                    }
+                }
+            }
+        })
+
         // On orientation change if we have a valid value for identifyLayerResult,
         // we highlight the first feature from the result.
         identifyResultViewModel.identifyLayerResult.value?.let {
@@ -138,7 +162,9 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
-            dataCollectionViewModel.setShowPopupEditControls(true)
+            if (bottomSheetBehavior.state != STATE_COLLAPSED) {
+                dataCollectionViewModel.setShowPopupEditControls(true)
+            }
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
         }
 
