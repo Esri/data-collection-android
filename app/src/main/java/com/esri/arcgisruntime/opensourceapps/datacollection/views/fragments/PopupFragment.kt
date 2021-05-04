@@ -20,15 +20,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentPopupBinding
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
+import com.esri.arcgisruntime.toolkit.util.observeEvent
 import kotlinx.android.synthetic.main.fragment_popup.*
 
 /**
@@ -54,9 +55,13 @@ class PopupFragment : Fragment() {
 
         popupViewModel.showSavingProgressEvent.observeEvent(viewLifecycleOwner) { isShowProgressBar ->
             if (isShowProgressBar) {
+                requireActivity().window.setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 progressBarLayout.visibility = View.VISIBLE
             } else {
                 progressBarLayout.visibility = View.GONE
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             }
         }
 
@@ -68,7 +73,34 @@ class PopupFragment : Fragment() {
             showConfirmCancelEditingDialog()
         }
 
+        popupViewModel.confirmDeletePopupEvent.observeEvent(viewLifecycleOwner) {
+            showConfirmDeletePopupDialog()
+        }
+
+        popupViewModel.showDeletePopupErrorEvent.observeEvent(viewLifecycleOwner) { errorMessage ->
+            showAlertDialog(errorMessage)
+        }
+
         return binding.root
+    }
+
+    /**
+     * Shows dialog to confirm deleting the popup.
+     */
+    private fun showConfirmDeletePopupDialog() {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Delete ${(popupViewModel.popup.value as Popup).title}?")
+            .setCancelable(false)
+            // positive button text and action
+            .setPositiveButton(getString(R.string.ok)) { dialog, id ->
+                popupViewModel.deletePopup()
+            }
+            // negative button text and action
+            .setNegativeButton(getString(R.string.cancel)) { dialog, id -> dialog.cancel()
+            }
+        val alert = dialogBuilder.create()
+        // show alert dialog
+        alert.show()
     }
 
     /**

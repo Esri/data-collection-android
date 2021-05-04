@@ -24,7 +24,7 @@
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel" />
         <variable
                 name="popupViewModel"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel"/>
+                type="com.esri.arcgisruntime.toolkit.popup.PopupViewModel"/>
     </data>
 
 
@@ -45,6 +45,13 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="00.333" />
 
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="50dp" />
+
         <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
@@ -54,8 +61,8 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.138"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.266" />
 
@@ -67,13 +74,26 @@
                 android:text="@{popupViewModel.popup}"
                 android:textAlignment="viewStart"
                 android:textSize="14sp"
-                app:layout_constraintStart_toEndOf="@id/symbol"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.148"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.65"/>
+
+        <ImageView
+                android:id="@+id/close"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="12dp"
+                android:onClick="@{() -> identifyResultViewModel.dismissIdentifyLayerResult()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.918"
+                app:layout_constraintStart_toEndOf="@id/title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.446"
+                app:srcCompat="@drawable/ic_x_circle_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

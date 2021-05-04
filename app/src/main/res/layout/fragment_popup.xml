@@ -21,7 +21,7 @@
         <import type="android.view.View"/>
         <variable
                 name="popupViewModel"
-                type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel"/>
+                type="com.esri.arcgisruntime.toolkit.popup.PopupViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -65,7 +65,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/controlLayout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="80dp"
                 app:layout_constraintBottom_toTopOf="@id/guideline"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -98,50 +98,19 @@
                     app:layout_constraintVertical_bias="0.466" />
 
             <ImageView
-                    android:id="@+id/edit"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
+                    android:id="@+id/close"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginStart="12dp"
-                    android:contentDescription="@string/edit"
-                    android:onClick="@{() -> popupViewModel.setEditMode(true)}"
+                    android:onClick="@{() -> popupViewModel.dismissPopup()}"
                     android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.918"
                     app:layout_constraintStart_toEndOf="@id/title"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.466"
-                    app:srcCompat="@drawable/ic_pencil_24" />
-
-            <ImageView
-                    android:id="@+id/ok"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
-                    android:layout_marginStart="12dp"
-                    android:contentDescription="@string/ok"
-                    android:onClick="@{() -> popupViewModel.savePopupEdits()}"
-                    android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.918"
-                    app:layout_constraintStart_toEndOf="@id/title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.466"
-                    app:srcCompat="@drawable/ic_check_24" />
-
-            <ImageView
-                    android:id="@+id/cancel"
-                    android:layout_width="30dp"
-                    android:layout_height="34dp"
-                    android:contentDescription="@string/cancel"
-                    android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
-                    android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/edit"
-                    app:layout_constraintHorizontal_bias="0.825"
-                    app:layout_constraintStart_toEndOf="@id/title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_x_24" />
+                    app:layout_constraintVertical_bias="0.464"
+                    app:srcCompat="@drawable/ic_x_circle_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -150,30 +119,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_begin="64dp" />
+                app:layout_constraintGuide_begin="80dp" />
 
         <View
                 android:id="@+id/separatingLine"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#c0c0c0"
-                app:layout_constraintBottom_toTopOf="@id/popupView"
+                app:layout_constraintBottom_toBottomOf="@id/controlLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/controlLayout" />
 
-            <com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView
+            <com.esri.arcgisruntime.toolkit.popup.PopupView
                     android:id="@+id/popupView"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/bufferGuideline"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/guideline"
+                    app:layout_constraintTop_toBottomOf="@id/separatingLine"
                     app:popup="@{popupViewModel.popup}"
                     app:popupManager="@{popupViewModel.popupManager}"
                     app:editMode="@{popupViewModel.isPopupInEditMode()}">
-            </com.esri.arcgisruntime.opensourceapps.datacollection.views.popup.PopupView>
+            </com.esri.arcgisruntime.toolkit.popup.PopupView>
+
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/bufferGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="60dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -19,10 +19,14 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
+        <import type="android.view.View"/>
         <variable
                 name="dataCollectionViewModel"
                 type="com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel" />
+
+        <variable
+                name="popupViewModel"
+                type="com.esri.arcgisruntime.toolkit.popup.PopupViewModel"/>
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout
@@ -30,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -42,21 +46,26 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
                     android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:title="@{dataCollectionViewModel.portalItemTitle}"
                     app:titleTextColor="@android:color/white" />
 
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
+            <com.esri.arcgisruntime.mapping.view.MapView
+                    android:id="@+id/mapView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                    app:map="@{dataCollectionViewModel.mapViewModel.map}" />
 
-                <com.esri.arcgisruntime.mapping.view.MapView
-                        android:id="@+id/mapView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:map="@{dataCollectionViewModel.mapViewModel.map}" />
+                 <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
                 <androidx.cardview.widget.CardView
                         android:id="@+id/bottomSheetContainer"
@@ -67,8 +76,9 @@
                         app:cardCornerRadius="12dp"
                         android:background="@android:color/white"
                         app:behavior_peekHeight="80dp"
-                        app:behavior_fitToContents="true"
-                        app:behavior_draggable="false"
+                        app:behavior_halfExpandedRatio="0.5"
+                        app:behavior_fitToContents="false"
+                        app:behavior_draggable="true"
                         app:behavior_hideable="true"
                         android:clickable="true"
                         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -83,9 +93,97 @@
                             app:navGraph="@navigation/bottomsheet_navigation" />
 
                 </androidx.cardview.widget.CardView>
-
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
-        </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.93" />
+
+            <View
+                    android:id="@+id/separatingLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#c0c0c0"
+                    android:visibility="@{dataCollectionViewModel.isShowPopupEditControls ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toTopOf="@id/editLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/editLayout" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/editLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="#F7F7F7"
+                    android:visibility="@{dataCollectionViewModel.isShowPopupEditControls ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/guideline"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                <ImageView
+                        android:id="@+id/edit"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/edit"
+                        android:onClick="@{() -> popupViewModel.setEditMode(true)}"
+                        android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.718"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintVertical_bias="0.475"
+                        app:srcCompat="@drawable/ic_pencil_24" />
+
+                <ImageView
+                        android:id="@+id/delete"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/cancel"
+                        android:onClick="@{() -> popupViewModel.confirmDeletePopup()}"
+                        android:visibility="@{popupViewModel.isPopupInEditMode ? View.GONE : View.VISIBLE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/edit"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintVertical_bias="0.475"
+                        app:srcCompat="@drawable/ic_trash_24" />
+
+                <ImageView
+                        android:id="@+id/ok"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/ok"
+                        android:onClick="@{() -> popupViewModel.savePopupEdits()}"
+                        android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.718"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintVertical_bias="0.475"
+                        app:srcCompat="@drawable/ic_save_24" />
+
+                <ImageView
+                        android:id="@+id/cancel"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/cancel"
+                        android:onClick="@{() -> popupViewModel.confirmCancelEditing()}"
+                        android:visibility="@{popupViewModel.isPopupInEditMode ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/ok"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintVertical_bias="0.475"
+                        app:srcCompat="@drawable/ic_x_24" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
         <com.google.android.material.navigation.NavigationView

@@ -26,7 +26,7 @@ import androidx.fragment.app.activityViewModels
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentIdentifyResultBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
 
 /**
  * Responsible for displaying properties of the resulting GeoElement of an identify operation in

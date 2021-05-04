@@ -25,9 +25,9 @@ import androidx.security.crypto.MasterKeys
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.Event
+import com.esri.arcgisruntime.toolkit.util.Event
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.raiseEvent
+import com.esri.arcgisruntime.toolkit.util.raiseEvent
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalUser
@@ -72,6 +72,11 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
 
     private val _bottomSheetState: MutableLiveData<Int> = MutableLiveData(BottomSheetBehavior.STATE_HIDDEN)
     val bottomSheetState: LiveData<Int> = _bottomSheetState
+
+    private val _isShowPopupEditControls = MutableLiveData(false)
+    // Depicts whether to show the edit layout to modify the selected popup attributes
+    // being displayed in the bottomsheet
+    val isShowPopupEditControls: LiveData<Boolean> = _isShowPopupEditControls
 
     private val encryptedSharedPrefs by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -178,6 +183,15 @@ class DataCollectionViewModel(application: Application, val mapViewModel: MapVie
      */
     fun setCurrentBottomSheetState(bottomSheetState: Int) {
         _bottomSheetState.value = bottomSheetState
+    }
+
+    /**
+     * Sets whether to display the Popup editing control view.
+     *
+     * @param showPopupEditControls
+     */
+    fun setShowPopupEditControls(showPopupEditControls: Boolean) {
+        _isShowPopupEditControls.value = showPopupEditControls
     }
 
     /**

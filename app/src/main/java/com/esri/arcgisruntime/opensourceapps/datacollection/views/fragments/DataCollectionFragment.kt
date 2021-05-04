@@ -17,6 +17,7 @@
 package com.esri.arcgisruntime.opensourceapps.datacollection.views.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -27,7 +28,6 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -37,15 +37,21 @@ import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.opensourceapps.datacollection.R
 import com.esri.arcgisruntime.opensourceapps.datacollection.databinding.FragmentDataCollectionBinding
 import com.esri.arcgisruntime.opensourceapps.datacollection.util.Logger
-import com.esri.arcgisruntime.opensourceapps.datacollection.util.observeEvent
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.DataCollectionViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.IdentifyResultViewModel
 import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.MapViewModel
-import com.esri.arcgisruntime.opensourceapps.datacollection.viewmodels.PopupViewModel
 import com.esri.arcgisruntime.security.AuthenticationManager
 import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler
+import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
+import com.esri.arcgisruntime.toolkit.util.observeEvent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import kotlinx.android.synthetic.main.fragment_data_collection.*
 import java.security.InvalidParameterException
 import kotlin.math.roundToInt
@@ -80,25 +86,15 @@ class DataCollectionFragment : Fragment() {
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
+            dataCollectionViewModel.setShowPopupEditControls(false)
             when {
                 // we handle the back button press here to navigate back in the bottomsheet.
                 // when the user presses the back button when PopupAttributesListFragment is showing
                 // from the bottomsheet_navigation graph we pop it from the BackStack to go to the
                 // previous IdentifyResultFragment. When the backstack is at identifyResultFragment
-                // popBackStack() will return a false and we will hide the bottomsheet and clear the
-                // selected feature in the Featurelayer. If the bottomsheet is already hidden exit
-                // the DataCollectionActivity.
+                // popBackStack() will return a false and we will exit the DataCollectionActivity.
                 !bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false) ->
-                    if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
-                        resetIdentifyResult()
-                    } else {
-                        requireActivity().finish()
-                    }
-                // if the bottomsheet is in the STATE_EXPANDED then we are showing
-                // PopupAttributeListFragment and we need return back to the IdentifyResultFragment
-                // which shows up in STATE_COLLAPSED
-                bottomSheetBehavior.state == STATE_EXPANDED -> dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
+                    requireActivity().finish()
             }
         }
     }
@@ -116,6 +112,7 @@ class DataCollectionFragment : Fragment() {
 
         val view = fragmentDataCollectionBinding.root
 
+        fragmentDataCollectionBinding.popupViewModel = popupViewModel
         fragmentDataCollectionBinding.dataCollectionViewModel = dataCollectionViewModel
         fragmentDataCollectionBinding.lifecycleOwner = this
 
@@ -128,8 +125,30 @@ class DataCollectionFragment : Fragment() {
                 ?: throw InvalidParameterException("bottomSheetNavHostFragment must exist")
         bottomSheetNavController = bottomSheetNavHostFragment.findNavController()
 
-        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, Observer {
-            bottomSheetBehavior.state = it
+        dataCollectionViewModel.bottomSheetState.observe(viewLifecycleOwner, { bottomSheetState ->
+            if (bottomSheetState == STATE_HIDDEN) {
+                bottomSheetBehavior.isHideable = true
+            }
+            bottomSheetBehavior.state = bottomSheetState
+        })
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // handle onSlide
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
+                    when (newState) {
+                        STATE_COLLAPSED -> dataCollectionViewModel.setShowPopupEditControls(false)
+                        STATE_HIDDEN -> dataCollectionViewModel.setShowPopupEditControls(false)
+                        STATE_HALF_EXPANDED -> dataCollectionViewModel.setShowPopupEditControls(true)
+                        STATE_EXPANDED -> dataCollectionViewModel.setShowPopupEditControls(true)
+                    }
+                }
+            }
         })
 
         // On orientation change if we have a valid value for identifyLayerResult,
@@ -143,24 +162,34 @@ class DataCollectionFragment : Fragment() {
         }
 
         identifyResultViewModel.showPopupEvent.observeEvent(viewLifecycleOwner) {
+            if (bottomSheetBehavior.state != STATE_COLLAPSED) {
+                dataCollectionViewModel.setShowPopupEditControls(true)
+            }
             bottomSheetNavController.navigate(R.id.action_identifyResultFragment_to_popupFragment)
-            // PopupAttributeListFragment shows all popup attributes, so we
-            // show them in expanded(full screen) state of the bottom sheet
-            dataCollectionViewModel.setCurrentBottomSheetState(STATE_EXPANDED)
         }
 
         identifyResultViewModel.showIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
-            // user has kicked off event to show IdentifyResultsFragment by tapping on the header of
-            // bottomsheet containing popupAttributeListFragment.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
-                bottomSheetNavController.popBackStack()
+            // IdentifyResultFragment shows a few selected popup attributes. We
+            // show them in half expanded state of the bottom sheet
+            if (dataCollectionViewModel.bottomSheetState.value == STATE_HIDDEN) {
+                bottomSheetBehavior.isHideable = false
+                dataCollectionViewModel.setCurrentBottomSheetState(STATE_HALF_EXPANDED)
             }
-            // IdentifyResultFragment only shows a few selected popup attributes, so we
-            // show them in collapsed state(roughly 1/4 screen size) of the bottom sheet
-            dataCollectionViewModel.setCurrentBottomSheetState(STATE_COLLAPSED)
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        popupViewModel.dismissPopupEvent.observeEvent(viewLifecycleOwner) {
+            resetIdentifyResult()
+            dataCollectionViewModel.setShowPopupEditControls(false)
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
+        }
+
+        identifyResultViewModel.dismissIdentifyResultEvent.observeEvent(viewLifecycleOwner) {
+            resetIdentifyResult()
+            dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
         return view
     }
@@ -169,7 +198,7 @@ class DataCollectionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // setup the app bar and drawer layout
-        val navController = activity?.findNavController(R.id.bottomSheetNavHostFragment)
+        val navController = activity?.findNavController(R.id.navHostFragment)
         navController?.let {
             val appBarConfiguration = AppBarConfiguration(navController.graph, drawer_layout)
             view.findViewById<Toolbar>(R.id.toolbar)
@@ -189,37 +218,31 @@ class DataCollectionFragment : Fragment() {
             }
         }
 
-        // Handle the navigation button clicks on the toolbar to open the drawer and act as a back
-        // button
-        toolbar.setNavigationOnClickListener {
-            // When the user presses the navigation button to go back from PopupAttributeListFragment
-            // to IdentifyResultFragment in the bottomsheet, the bottomSheetNavController will still
-            // be holding on to PopupAttributeListFragment as the current destination when we last
-            // navigated to it. If that is the case we navigate to IdentifyResultFragment, else we
-            // have already navigated to IdentifyResultFragment in the bottomsheet and
-            // show the drawer layout.
-            if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
-                requireActivity().onBackPressed()
-            } else {
-                drawer_layout.openDrawer(GravityCompat.START)
-            }
-        }
-
         mapView.onTouchListener =
             object : DefaultMapViewOnTouchListener(context, mapView) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
 
-                    e?.let {
-                        val screenPoint = android.graphics.Point(
-                            it.x.roundToInt(),
-                            it.y.roundToInt()
-                        )
-                        identifyLayer(screenPoint)
+                    // Only perform identify on the mapview if the Popup is not in edit mode
+                    if (popupViewModel.isPopupInEditMode.value == false) {
+                        // If the user tapped on the mapview to perform an identify and
+                        // is currently looking at a popup's attributes we move back to
+                        // IdentifyResultFragment to perform identify
+                        if (bottomSheetNavController.currentDestination?.id == R.id.popupFragment) {
+                            bottomSheetNavController.popBackStack(R.id.identifyResultFragment, false)
+                        }
+
+                        dataCollectionViewModel.setCurrentBottomSheetState(STATE_HIDDEN)
+
+                        e?.let {
+                            val screenPoint = android.graphics.Point(
+                                it.x.roundToInt(),
+                                it.y.roundToInt()
+                            )
+                            identifyLayer(screenPoint)
+                        }
                     }
                     return true
                 }
-
             }
     }
 
